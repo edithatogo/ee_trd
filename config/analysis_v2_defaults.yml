@@ -1,0 +1,15 @@
+# Default parameters for analysis_v2 automation utilities.
+psa: data/psa_extended.csv
+strategies_yaml: config/strategies.yml
+perspectives:
+  - health_system
+  - societal
+lambda_min: 0
+lambda_max: 75000
+lambda_step: 1000
+lambda_single: 50000
+price_min: 0
+price_max: 50000
+price_step: 500
+outdir_root: results/feat_oral_ketamine_{date}
+seed: 12345

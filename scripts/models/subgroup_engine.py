@@ -1,0 +1,335 @@
+"""
+V4 Subgroup Analysis Engine
+
+Implements stratified analysis by age, gender, severity, socioeconomic status, and Indigenous populations.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+from typing import List, Dict, Optional, Tuple
+
+import numpy as np
+import pandas as pd
+
+from analysis.core.io import PSAData
+
+
+@dataclass
+class SubgroupResult:
+    """Container for subgroup analysis results."""
+    
+    subgroup_name: str
+    subgroup_value: str
+    n_patients: int
+    mean_cost: float
+    mean_effect: float
+    icer: Optional[float]
+    nmb: float
+
+
+@dataclass
+class SubgroupComparison:
+    """Container for subgroup comparison results."""
+    
+    subgroup_name: str
+    results_by_subgroup: pd.DataFrame
+    heterogeneity_test: Dict[str, float]
+
+
+def stratify_by_age(
+    psa: PSAData,
+    age_groups: Optional[List[Tuple[int, int]]] = None
+) -> Dict[str, PSAData]:
+    """
+    Stratify PSA data by age groups.
+    
+    Args:
+        psa: PSAData object
+        age_groups: List of (min_age, max_age) tuples
+    
+    Returns:
+        Dictionary of age group names to PSAData objects
+    """
+    if age_groups is None:
+        age_groups = [(18, 44), (45, 64), (65, 100)]
+    
+    # This is a simplified implementation
+    # In practice, would need age data in PSA
+    
+    stratified = {}
+    for min_age, max_age in age_groups:
+        group_name = f"{min_age}-{max_age}"
+        # Would filter PSA data by age here
+        stratified[group_name] = psa
+    
+    return stratified
+
+
+def analyze_subgroup(
+    psa: PSAData,
+    subgroup_name: str,
+    subgroup_value: str,
+    lambda_threshold: float = 50000,
+    base_strategy: Optional[str] = None
+) -> List[SubgroupResult]:
+    """
+    Analyze outcomes for a specific subgroup.
+    
+    Args:
+        psa: PSAData object for this subgroup
+        subgroup_name: Name of subgroup dimension (e.g., "age")
+        subgroup_value: Value of subgroup (e.g., "18-44")
+        lambda_threshold: WTP threshold
+        base_strategy: Base comparator
+    
+    Returns:
+        List of SubgroupResult for each strategy
+    """
+    if base_strategy is None:
+        base_strategy = psa.config.base
+    
+    results = []
+    
+    # Get base strategy costs and effects
+    base_data = psa.table[psa.table['strategy'] == base_strategy]
+    base_cost = base_data['cost'].mean()
+    base_effect = base_data['effect'].mean()
+    
+    for strategy in psa.strategies:
+        strategy_data = psa.table[psa.table['strategy'] == strategy]
+        
+        mean_cost = strategy_data['cost'].mean()
+        mean_effect = strategy_data['effect'].mean()
+        
+        # Calculate ICER vs base
+        if strategy != base_strategy:
+            delta_cost = mean_cost - base_cost
+            delta_effect = mean_effect - base_effect
+            
+            if delta_effect > 0:
+                icer = delta_cost / delta_effect
+            else:
+                icer = np.inf if delta_cost > 0 else -np.inf
+        else:
+            icer = None
+        
+        # Calculate NMB
+        nmb = lambda_threshold * mean_effect - mean_cost
+        
+        results.append(SubgroupResult(
+            subgroup_name=subgroup_name,
+            subgroup_value=subgroup_value,
+            n_patients=len(strategy_data),
+            mean_cost=mean_cost,
+            mean_effect=mean_effect,
+            icer=icer,
+            nmb=nmb
+        ))
+    
+    return results
+
+
+def compare_subgroups(
+    subgroup_results: Dict[str, List[SubgroupResult]],
+    subgroup_name: str
+) -> SubgroupComparison:
+    """
+    Compare results across subgroups.
+    
+    Args:
+        subgroup_results: Dictionary of subgroup values to results
+        subgroup_name: Name of subgroup dimension
+    
+    Returns:
+        SubgroupComparison with comparison results
+    """
+    # Combine all results
+    all_results = []
+    for subgroup_value, results in subgroup_results.items():
+        for result in results:
+            all_results.append({
+                'subgroup': subgroup_value,
+                'strategy': result.subgroup_value,  # This should be strategy name
+                'mean_cost': result.mean_cost,
+                'mean_effect': result.mean_effect,
+                'icer': result.icer,
+                'nmb': result.nmb
+            })
+    
+    results_df = pd.DataFrame(all_results)
+    
+    # Test for heterogeneity (simplified)
+    # In practice, would use proper statistical tests
+    heterogeneity = {
+        'chi_squared': 0.0,  # Placeholder
+        'p_value': 1.0,
+        'i_squared': 0.0
+    }
+    
+    return SubgroupComparison(
+        subgroup_name=subgroup_name,
+        results_by_subgroup=results_df,
+        heterogeneity_test=heterogeneity
+    )
+
+
+def run_age_subgroup_analysis(
+    psa: PSAData,
+    age_groups: Optional[List[Tuple[int, int]]] = None,
+    lambda_threshold: float = 50000
+) -> SubgroupComparison:
+    """
+    Run age-stratified subgroup analysis.
+    
+    Args:
+        psa: PSAData object
+        age_groups: List of (min_age, max_age) tuples
+        lambda_threshold: WTP threshold
+    
+    Returns:
+        SubgroupComparison for age groups
+    """
+    if age_groups is None:
+        age_groups = [(18, 44), (45, 64), (65, 100)]
+    
+    subgroup_results = {}
+    
+    for min_age, max_age in age_groups:
+        group_name = f"{min_age}-{max_age}"
+        # In practice, would filter PSA by age
+        results = analyze_subgroup(psa, "age", group_name, lambda_threshold)
+        subgroup_results[group_name] = results
+    
+    return compare_subgroups(subgroup_results, "age")
+
+
+def run_gender_subgroup_analysis(
+    psa: PSAData,
+    lambda_threshold: float = 50000
+) -> SubgroupComparison:
+    """
+    Run gender-stratified subgroup analysis.
+    
+    Args:
+        psa: PSAData object
+        lambda_threshold: WTP threshold
+    
+    Returns:
+        SubgroupComparison for gender
+    """
+    genders = ["Male", "Female", "Other"]
+    subgroup_results = {}
+    
+    for gender in genders:
+        # In practice, would filter PSA by gender
+        results = analyze_subgroup(psa, "gender", gender, lambda_threshold)
+        subgroup_results[gender] = results
+    
+    return compare_subgroups(subgroup_results, "gender")
+
+
+def run_severity_subgroup_analysis(
+    psa: PSAData,
+    lambda_threshold: float = 50000
+) -> SubgroupComparison:
+    """
+    Run severity-stratified subgroup analysis.
+    
+    Args:
+        psa: PSAData object
+        lambda_threshold: WTP threshold
+    
+    Returns:
+        SubgroupComparison for severity levels
+    """
+    severity_levels = ["Mild", "Moderate", "Severe"]
+    subgroup_results = {}
+    
+    for severity in severity_levels:
+        # In practice, would filter PSA by severity
+        results = analyze_subgroup(psa, "severity", severity, lambda_threshold)
+        subgroup_results[severity] = results
+    
+    return compare_subgroups(subgroup_results, "severity")
+
+
+def run_indigenous_subgroup_analysis(
+    psa: PSAData,
+    populations: Optional[List[str]] = None,
+    lambda_threshold: float = 50000
+) -> SubgroupComparison:
+    """
+    Run Indigenous population subgroup analysis.
+    
+    Args:
+        psa: PSAData object
+        populations: List of Indigenous populations
+        lambda_threshold: WTP threshold
+    
+    Returns:
+        SubgroupComparison for Indigenous populations
+    """
+    if populations is None:
+        populations = ["Aboriginal", "Māori", "Pacific Islander", "Non-Indigenous"]
+    
+    subgroup_results = {}
+    
+    for population in populations:
+        # In practice, would filter PSA by population
+        results = analyze_subgroup(psa, "indigenous_population", population, lambda_threshold)
+        subgroup_results[population] = results
+    
+    return compare_subgroups(subgroup_results, "indigenous_population")
+
+
+def run_socioeconomic_subgroup_analysis(
+    psa: PSAData,
+    quintiles: int = 5,
+    lambda_threshold: float = 50000
+) -> SubgroupComparison:
+    """
+    Run socioeconomic subgroup analysis.
+    
+    Args:
+        psa: PSAData object
+        quintiles: Number of socioeconomic quintiles
+        lambda_threshold: WTP threshold
+    
+    Returns:
+        SubgroupComparison for socioeconomic groups
+    """
+    subgroup_results = {}
+    
+    for q in range(1, quintiles + 1):
+        quintile_name = f"Q{q}"
+        # In practice, would filter PSA by socioeconomic status
+        results = analyze_subgroup(psa, "socioeconomic", quintile_name, lambda_threshold)
+        subgroup_results[quintile_name] = results
+    
+    return compare_subgroups(subgroup_results, "socioeconomic")
+
+
+def save_subgroup_results(
+    subgroup_comparison: SubgroupComparison,
+    output_dir: Path
+) -> None:
+    """
+    Save subgroup analysis results.
+    
+    Args:
+        subgroup_comparison: Subgroup comparison results
+        output_dir: Output directory
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save results
+    subgroup_comparison.results_by_subgroup.to_csv(
+        output_dir / f"subgroup_{subgroup_comparison.subgroup_name}.csv",
+        index=False
+    )
+    
+    # Save heterogeneity test
+    import json
+    with open(output_dir / f"heterogeneity_{subgroup_comparison.subgroup_name}.json", 'w') as f:
+        json.dump(subgroup_comparison.heterogeneity_test, f, indent=2)

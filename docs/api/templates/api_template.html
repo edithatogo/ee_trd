@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ metadata.title }} - {{ api_docs.module_name }} API Documentation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            border-bottom: 3px solid #007acc;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #007acc;
+        }
+        .metadata {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .metadata strong {
+            color: #495057;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            color: #343a40;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 10px;
+        }
+        .class-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .class-name {
+            color: #007acc;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .inheritance {
+            font-family: monospace;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+        .method {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .method-name {
+            color: #28a745;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        .signature {
+            font-family: monospace;
+            background: #e9ecef;
+            padding: 8px;
+            border-radius: 3px;
+            margin: 8px 0;
+        }
+        .parameters {
+            margin-left: 20px;
+        }
+        .parameter {
+            margin-bottom: 5px;
+        }
+        .parameter-name {
+            font-weight: bold;
+            color: #495057;
+        }
+        .parameter-type {
+            font-family: monospace;
+            color: #6c757d;
+        }
+        .docstring {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 3px;
+        }
+        .function-card {
+            background: #e8f5e8;
+            border: 1px solid #c3e6c3;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .function-name {
+            color: #28a745;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .constant-card {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .constant-name {
+            color: #856404;
+            font-weight: bold;
+        }
+        .code {
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            text-align: center;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ metadata.title }}</h1>
+            <h2>{{ api_docs.module_name }} API Documentation</h2>
+        </div>
+
+        <div class="metadata">
+            <strong>Version:</strong> {{ metadata.version }} |
+            <strong>Generated:</strong> {{ generated_date }} |
+            <strong>Author:</strong> {{ metadata.author }} |
+            <strong>Framework Version:</strong> {{ metadata.framework_version }}
+        </div>
+
+        <div class="section">
+            <h2>Description</h2>
+            <p>{{ metadata.description }}</p>
+        </div>
+
+        {% if api_docs.classes %}
+        <div class="section">
+            <h2>Classes</h2>
+            {% for class_doc in api_docs.classes %}
+            <div class="class-card">
+                <div class="class-name">{{ class_doc.name }}</div>
+                {% if class_doc.inheritance %}
+                <div class="inheritance">{{ class_doc.inheritance|join(' → ') }}</div>
+                {% endif %}
+                <div class="docstring">{{ class_doc.docstring }}</div>
+
+                {% if class_doc.methods %}
+                <h4>Methods</h4>
+                {% for method in class_doc.methods %}
+                <div class="method">
+                    <div class="method-name">{{ method.name }}</div>
+                    <div class="signature">{{ method.signature }}</div>
+                    {% if method.parameters %}
+                    <div class="parameters">
+                        <strong>Parameters:</strong>
+                        {% for param in method.parameters %}
+                        <div class="parameter">
+                            <span class="parameter-name">{{ param.name }}</span>
+                            <span class="parameter-type">({{ param.annotation }})</span>
+                            {% if param.default %} = {{ param.default }}{% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if method.docstring %}
+                    <div class="docstring">{{ method.docstring }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% if class_doc.properties %}
+                <h4>Properties</h4>
+                {% for prop in class_doc.properties %}
+                <div class="method">
+                    <div class="method-name">{{ prop.name }}</div>
+                    <div class="docstring">{{ prop.docstring }}</div>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if api_docs.functions %}
+        <div class="section">
+            <h2>Functions</h2>
+            {% for func_doc in api_docs.functions %}
+            <div class="function-card">
+                <div class="function-name">{{ func_doc.name }}</div>
+                <div class="signature">{{ func_doc.signature }}</div>
+                {% if func_doc.parameters %}
+                <div class="parameters">
+                    <strong>Parameters:</strong>
+                    {% for param in func_doc.parameters %}
+                    <div class="parameter">
+                        <span class="parameter-name">{{ param.name }}</span>
+                        <span class="parameter-type">({{ param.annotation }})</span>
+                        {% if param.default %} = {{ param.default }}{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <div class="docstring">{{ func_doc.docstring }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if api_docs.constants %}
+        <div class="section">
+            <h2>Constants</h2>
+            {% for const_doc in api_docs.constants %}
+            <div class="constant-card">
+                <div class="constant-name">{{ const_doc.name }}</div>
+                <div><strong>Type:</strong> {{ const_doc.type }}</div>
+                <div><strong>Value:</strong> <span class="code">{{ const_doc.value }}</span></div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="footer">
+            <p>Generated by V4 Health Economic Framework Documentation System</p>
+            <p>{{ generated_date }}</p>
+        </div>
+    </div>
+</body>
+</html>

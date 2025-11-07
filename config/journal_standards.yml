@@ -1,0 +1,90 @@
+# Journal-Specific Publication Standards
+# Configuration for meeting journal requirements
+
+australian_nz_psychiatry:
+  name: "Australian and New Zealand Journal of Psychiatry"
+  
+  # Figure requirements
+  figures:
+    resolution:
+      minimum_dpi: 300
+      preferred_dpi: 600
+    
+    formats:
+      accepted:
+        - "tiff"
+        - "eps"
+        - "pdf"
+      preferred: "tiff"
+    
+    dimensions:
+      single_column:
+        width_mm: 84
+        width_inches: 3.31
+      double_column:
+        width_mm: 174
+        width_inches: 6.85
+      full_page:
+        width_mm: 174
+        height_mm: 234
+        width_inches: 6.85
+        height_inches: 9.21
+    
+    fonts:
+      minimum_size_pt: 8
+      preferred_size_pt: 10
+      preferred_families:
+        - "Arial"
+        - "Helvetica"
+        - "Times New Roman"
+    
+    colors:
+      mode: "RGB"
+      profile: "sRGB"
+      grayscale_acceptable: true
+    
+    file_size:
+      maximum_mb: 10
+      recommended_mb: 5
+  
+  # Table requirements
+  tables:
+    format: "Word"
+    font_size_pt: 10
+    line_spacing: "single"
+    borders: "minimal"
+  
+  # Supplementary materials
+  supplementary:
+    formats:
+      - "pdf"
+      - "docx"
+      - "xlsx"
+    file_size_limit_mb: 50
+  
+  # Equation formatting
+  equations:
+    format: "MathType or Equation Editor"
+    inline: true
+    numbered: true
+  
+  # References
+  references:
+    style: "APA 7th edition"
+    management: "EndNote, Zotero, or Mendeley"
+    doi_required: true
+
+# Generic publication standards (fallback)
+generic:
+  figures:
+    resolution:
+      minimum_dpi: 300
+    formats:
+      - "png"
+      - "pdf"
+      - "svg"
+    dimensions:
+      width_inches: 6.5
+      height_inches: 4.5
+    fonts:
+      minimum_size_pt: 8

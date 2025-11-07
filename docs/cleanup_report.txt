@@ -1,0 +1,7 @@
+V4 Repository Cleanup Report
+============================================================
+
+Duplicate Files: 433 sets
+Obsolete Files: 13 files
+Progress Docs: 12 files
+Empty Directories: 57 directories

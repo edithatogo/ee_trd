@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.coverage.xml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data files (large files should not be committed)
+data/*.csv
+data/*.xlsx
+data/*.json
+results/
+outputs/
+figures/
+
+# Logs
+logs/
+
+# IPython
+.ipynb_checkpoints
+
+# Coverage
+.coverage*
+coverage.xml
+
+# Performance profiling
+*.prof
+profile_output.txt
+
+# Configuration files with sensitive info
+config/secrets.*
+config/local.*
+
+# Jupyter checkpoints
+**/.ipynb_checkpoints

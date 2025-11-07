@@ -1,0 +1,117 @@
+# Default logging configuration for V4 health economic evaluation pipeline
+# This file can be customized to change logging behavior across all scripts
+
+# Basic logging settings
+level: "INFO"
+format: "console"  # Options: console, json, structured
+
+# Output settings
+enable_console: true
+enable_file: true
+
+# File logging settings
+log_dir: "logs"
+max_file_size: 10485760  # 10MB in bytes
+backup_count: 5
+encoding: "utf-8"
+
+# Analysis-specific settings
+include_progress: true
+include_timestamps: true
+include_analysis_context: true
+
+# Console formatting
+colorize_console: true
+json_indent: 2
+
+# Custom formatters for different output types
+formatters:
+  console:
+    colorize_console: true
+    include_progress: true
+    include_timestamps: true
+    include_analysis_context: true
+
+  json:
+    format: "json"
+    json_indent: 2
+    include_progress: true
+    include_timestamps: true
+    include_analysis_context: true
+
+  structured:
+    format: "structured"
+    include_progress: true
+    include_timestamps: true
+    include_analysis_context: true
+
+# Analysis type specific settings
+analysis_settings:
+  cea:
+    level: "INFO"
+    include_progress: true
+
+  voi:
+    level: "INFO"
+    include_progress: true
+
+  dcea:
+    level: "INFO"
+    include_progress: true
+
+  vbp:
+    level: "INFO"
+    include_progress: true
+
+  bia:
+    level: "INFO"
+    include_progress: true
+
+  dsa:
+    level: "INFO"
+    include_progress: true
+
+  subgroup:
+    level: "INFO"
+    include_progress: true
+
+  scenario:
+    level: "INFO"
+    include_progress: true
+
+# Script-specific overrides
+script_settings:
+  run_v4_analysis:
+    level: "INFO"
+    enable_file: true
+
+  generate_v4_outputs:
+    level: "INFO"
+    enable_file: true
+
+  generate_v4_figures:
+    level: "INFO"
+    enable_file: true
+
+  run_complete_v4_analysis:
+    level: "INFO"
+    enable_file: true
+
+# Development vs production settings
+environments:
+  development:
+    level: "DEBUG"
+    colorize_console: true
+    enable_file: true
+
+  production:
+    level: "WARNING"
+    format: "json"
+    colorize_console: false
+    enable_file: true
+
+  testing:
+    level: "DEBUG"
+    format: "structured"
+    colorize_console: false
+    enable_file: false

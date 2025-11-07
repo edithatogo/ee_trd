@@ -1,0 +1,37 @@
+name: V3 Parity Checks
+
+on:
+  pull_request:
+    paths:
+      - 'nextgen_v3/**'
+  push:
+    branches: [main, master]
+    paths:
+      - 'nextgen_v3/**'
+
+jobs:
+  parity-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run parity inventory
+      run: make parity-inventory
+      
+    - name: Run parity spec build
+      run: make parity-spec
+      
+    - name: Run parity checks
+      run: make parity-check

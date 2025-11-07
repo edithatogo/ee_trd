@@ -1,0 +1,66 @@
+# See earlier chat for full comments
+# References: CEA guidelines [9], clinical rates [1-4], costs [6-8], assumptions [10-12]
+import pandas as pd
+import os
+script_dir = os.path.dirname(os.path.abspath(__file__))
+params = pd.read_csv(os.path.join(script_dir, "../data/parameters_psa.csv"))
+clin = pd.read_csv(os.path.join(script_dir, "../data/clinical_inputs.csv"))
+cost_au = pd.read_csv(os.path.join(script_dir, "../data/cost_inputs_au.csv"))
+
+def get_param(name, default=None):
+    row = params[params["Parameter"]==name]
+    return float(row["BaseValue"].iloc[0]) if not row.empty else default
+
+def cost_lookup_au(label):
+    row = cost_au[cost_au["Item"]==label]
+    return float(row["AUD_Value_2024"].iloc[0]) if not row.empty else 0.0
+
+utility_dep = get_param("Utility depressed", 0.57)
+utility_rem = get_param("Utility remission", 0.81)
+cost_ect_session = cost_lookup_au("ECT total session cost (public)")
+cost_ket_session = cost_lookup_au("Ketamine total session (IV)")
+cost_esk_session = cost_lookup_au("Esketamine session – assumed total")
+cost_psilo_program = cost_lookup_au("Psilocybin program (2-dose + therapy)")
+prod_loss_year = get_param("Productivity loss per year AU", 2000)
+informal_care_year = get_param("Informal care per year AU", 10000)
+oop_ect = get_param("OOP ECT per session AU", 400)
+oop_ket = get_param("OOP Ketamine per session AU", 100)
+disutil_ect = get_param("Adverse disutility ECT", -0.1)
+disutil_ket = get_param("Adverse disutility Ketamine", -0.05)
+
+def simulate_strategy(strategy="ECT", horizon_months=120, cohort=1000, country="AU"):
+    dep, rem = cohort, 0.0
+    total_cost, total_qalys = 0.0, 0.0
+    suffix = " AU" if country == "AU" else " NZ"
+    prod_loss_year = get_param(f"Productivity loss per year{suffix}", 2000 if country=="AU" else 1800)
+    informal_care_year = get_param(f"Informal care per year{suffix}", 10000 if country=="AU" else 9000)
+    oop_ect = get_param(f"OOP ECT per session{suffix}", 400 if country=="AU" else 350)
+    oop_ket = get_param(f"OOP Ketamine per session{suffix}", 100 if country=="AU" else 90)
+    disutil_ect = get_param("Adverse disutility ECT", -0.1)
+    disutil_ket = get_param("Adverse disutility Ketamine", -0.05)
+    cost_ect_session = cost_lookup_au("ECT total session cost (public)") if country=="AU" else get_param("Cost ect session NZ", 950)
+    cost_ket_session = cost_lookup_au("Ketamine total session (IV)") if country=="AU" else get_param("Cost ketamine session NZ", 280)
+    cost_esk_session = cost_lookup_au("Esketamine session – assumed total") if country=="AU" else get_param("Cost esketamine session NZ", 400)
+    cost_psilo_program = cost_lookup_au("Psilocybin program (2-dose + therapy)") if country=="AU" else get_param("Cost psilocybin program NZ", 14000)
+    sessions = 8 if strategy != "Psilocybin" else 1
+    if strategy=="ECT": total_cost += sessions*cost_ect_session + sessions*oop_ect; p_remit=0.60; adherence = get_param("ECT Adherence Rate", 1.0); disutil = disutil_ect
+    elif strategy=="Ketamine": total_cost += sessions*cost_ket_session + sessions*oop_ket; p_remit=0.45; adherence = get_param("Ketamine Adherence Rate", 1.0); disutil = disutil_ket
+    elif strategy=="Esketamine": total_cost += sessions*cost_esk_session; p_remit=0.36; adherence = get_param("Esketamine Adherence Rate", 1.0); disutil = 0
+    elif strategy=="Psilocybin": total_cost += cost_psilo_program; p_remit=0.40; adherence = get_param("Psilocybin Adherence Rate", 1.0); disutil = 0
+    else: p_remit=0.0; adherence = 1.0; disutil = 0
+    p_remit *= adherence
+    rem = dep*p_remit; dep -= rem
+    # Societal costs: productivity loss and informal care for depressed patients
+    depressed_years = (dep / cohort) * (horizon_months / 12)
+    total_cost += depressed_years * (prod_loss_year + informal_care_year)
+    for m in range(1, horizon_months+1):
+        qaly_month = (dep*utility_dep + rem*utility_rem)/cohort/12.0
+        if m == 1: qaly_month += disutil / 12.0  # Adverse disutility in first month
+        total_qalys += qaly_month
+    return {"strategy":strategy,"cost":total_cost,"qalys":total_qalys,"country":country}
+
+if __name__=="__main__":
+    for country in ["AU", "NZ"]:
+        print(f"\n{country} Results:")
+        for s in ["ECT","Ketamine","Esketamine","Psilocybin"]:
+            print(simulate_strategy(s, country=country))

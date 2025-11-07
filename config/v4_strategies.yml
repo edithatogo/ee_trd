@@ -1,0 +1,84 @@
+# V4 Strategy Configuration
+# Uses manuscript abbreviations for all therapies
+
+base: "Usual Care"
+
+perspectives:
+  - "health_system"
+  - "societal"
+
+jurisdictions:
+  - "AU"
+  - "NZ"
+
+# V4 Therapy Strategies (using manuscript abbreviations)
+strategies:
+  - "Usual Care"
+  - "UC+Li"           # Usual Care + Lithium Augmentation
+  - "UC+AA"           # Usual Care + Atypical Antipsychotic
+  - "ECT"             # Standard Electroconvulsive Therapy
+  - "KA-ECT"          # Ketamine-Assisted ECT
+  - "IV-KA"           # Intravenous Ketamine
+  - "IN-EKA"          # Intranasal Esketamine
+  - "PO-PSI"          # Oral Psilocybin-Assisted Therapy
+  - "PO-KA"           # Oral Ketamine
+  - "rTMS"            # Repetitive Transcranial Magnetic Stimulation
+
+# Pricing parameters (base prices, can be adjusted in analysis)
+prices:
+  "Usual Care": 0
+  "UC+Li": 200
+  "UC+AA": 300
+  "ECT": 0
+  "KA-ECT": 0
+  "IV-KA": 0
+  "IN-EKA": 0
+  "PO-PSI": 0
+  "PO-KA": 0
+  "rTMS": 0
+
+# Effects and currency
+effects_unit: "QALYs"
+currency: "AUD"
+
+# Human-friendly display names for plots and tables
+labels:
+  "Usual Care": "Usual care (pharmacotherapy/psychotherapy)"
+  "UC+Li": "Usual care + lithium augmentation"
+  "UC+AA": "Usual care + atypical antipsychotic"
+  "ECT": "Standard electroconvulsive therapy"
+  "KA-ECT": "Ketamine-assisted ECT"
+  "IV-KA": "Intravenous ketamine"
+  "IN-EKA": "Intranasal esketamine"
+  "PO-PSI": "Oral psilocybin-assisted therapy"
+  "PO-KA": "Oral ketamine"
+  "rTMS": "Repetitive transcranial magnetic stimulation"
+
+# Full therapy names for documentation
+full_names:
+  "Usual Care": "Standard Care Comparator"
+  "UC+Li": "Usual Care + Lithium Augmentation"
+  "UC+AA": "Usual Care + Atypical Antipsychotic Augmentation"
+  "ECT": "Standard Electroconvulsive Therapy"
+  "KA-ECT": "Ketamine-Assisted ECT"
+  "IV-KA": "Intravenous Ketamine"
+  "IN-EKA": "Intranasal Esketamine"
+  "PO-PSI": "Oral Psilocybin-Assisted Therapy"
+  "PO-KA": "Oral Ketamine"
+  "rTMS": "Repetitive Transcranial Magnetic Stimulation"
+
+# Step-care pathway definitions (for advanced analysis)
+step_care_sequences:
+  "Pathway 1":
+    name: "Pharm → rTMS → IV-KA → ECT"
+    steps:
+      - "Usual Care"
+      - "rTMS"
+      - "IV-KA"
+      - "ECT"
+  "Pathway 2":
+    name: "Pharm → PO-KA → KA-ECT"
+    steps:
+      - "Usual Care"
+      - "PO-KA"
+      - "KA-ECT"

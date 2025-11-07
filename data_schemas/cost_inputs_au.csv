@@ -1,0 +1,3 @@
+item,cost_aud,source_id,Group,region,ethnicity,payer
+ECT_session,1000,local_au,public_metro_Māori,metro,Māori,public
+Ketamine_dose,500,local_au,private_rural_Other,rural,Other,private

@@ -1,0 +1,11 @@
+Parameter,Low,Base,High,Notes
+Cost ECT session AU,800,1000,1200,Unit cost per ECT session (AUD)
+Cost ketamine session AU,200,300,400,Unit cost per IV ketamine session (AUD)
+Cost esketamine session AU,500,800,1200,Unit cost per esketamine session (AUD)
+Cost psilocybin program AU,10000,15000,20000,Program delivery cost (AUD)
+ECT remission,0.50,0.60,0.70,Probability
+Ketamine remission (4w),0.30,0.45,0.60,Probability
+Esketamine remission (4w),0.25,0.36,0.50,Probability
+Psilocybin remission,0.15,0.30,0.45,Probability
+Utility depressed,0.50,0.57,0.64,Utility
+Utility remission,0.75,0.81,0.87,Utility

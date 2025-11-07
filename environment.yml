@@ -1,0 +1,22 @@
+name: trd-cea
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - pandas
+  - matplotlib
+  - seaborn
+  - scipy
+  - pymc>=5.0.0
+  - arviz
+  - jupyter
+  - jupyterlab
+  - notebook
+  - pytest
+  - pip:
+    - pyyaml
+    - requests
+    - biopython

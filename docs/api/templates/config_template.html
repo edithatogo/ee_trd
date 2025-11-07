@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ metadata.title }} - Configuration Reference</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            border-bottom: 3px solid #17a2b8;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #17a2b8;
+        }
+        .metadata {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .config-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .config-title {
+            color: #17a2b8;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #17a2b8;
+            padding-bottom: 10px;
+        }
+        .config-description {
+            background: #d1ecf1;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #17a2b8;
+        }
+        .config-field {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .field-name {
+            color: #495057;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .field-type {
+            font-family: monospace;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        .field-default {
+            font-family: monospace;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        .field-description {
+            margin-top: 8px;
+            color: #6c757d;
+        }
+        .code-example {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        .code-inline {
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            text-align: center;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ metadata.title }}</h1>
+            <h2>Configuration Reference Documentation</h2>
+        </div>
+
+        <div class="metadata">
+            <strong>Version:</strong> {{ metadata.version }} |
+            <strong>Generated:</strong> {{ generated_date }} |
+            <strong>Author:</strong> {{ metadata.author }} |
+            <strong>Framework Version:</strong> {{ metadata.framework_version }}
+        </div>
+
+        <div class="section">
+            <h2>Configuration Schemas</h2>
+            <p>This document provides reference information for V4 framework configuration schemas and their usage.</p>
+        </div>
+
+        {% for config_name, config_doc in config_docs.items() %}
+        <div class="config-section">
+            <div class="config-title">{{ config_name.replace('_', ' ').title() }}</div>
+            <div class="config-description">
+                {{ config_doc.docstring or 'Configuration class for V4 framework components.' }}
+            </div>
+
+            {% if config_doc.methods %}
+            <h4>Configuration Fields</h4>
+            {% for method in config_doc.methods %}
+            <div class="config-field">
+                <div class="field-name">{{ method.name }}</div>
+                <div class="field-type">{{ method.signature }}</div>
+                {% if method.docstring %}
+                <div class="field-description">{{ method.docstring }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            {% if config_name == 'main_config' %}
+            <div class="code-example">
+                <h5>Example Configuration (YAML)</h5>
+                <pre><code>version: "4.0.0"
+data:
+  psa: "data/psa.csv"
+  strategies: "config/strategies.yml"
+perspectives: ["health_system", "societal"]
+jurisdictions: ["AU", "NZ"]
+
+wtp:
+  min: 0
+  max: 100000
+  step: 1000
+  default: 50000
+  thresholds: [20000, 30000, 50000, 70000]
+
+psa:
+  iterations: 10000
+  seed: 20250929
+  convergence_check: true
+  min_iterations: 1000
+
+engines:
+  enabled: true
+  execution_mode: "asynchronous"
+  max_workers: 4
+  timeout: 300
+  auto_discovery: true
+  cache_results: true
+
+async:
+  max_concurrent_engines: 4
+  engine_timeout: 300
+  progress_interval: 1.0
+  enable_cancellation: true
+  resource_monitoring: true</code></pre>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="footer">
+            <p>Generated by V4 Health Economic Framework Documentation System</p>
+            <p>{{ generated_date }}</p>
+        </div>
+    </div>
+</body>
+</html>

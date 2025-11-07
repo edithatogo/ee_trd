@@ -1,0 +1,14 @@
+blocks:
+  - name: clinical_block
+    params: [ECT_remission, ECT_relapse_hz, IV_ket_remission, Esketamine_remission, Psilocybin_remission]
+    corr: [[1,  -0.4, 0.3, 0.2, 0.2],
+           [-0.4, 1, -0.2, -0.1, -0.1],
+           [0.3, -0.2, 1, 0.3, 0.2],
+           [0.2, -0.1, 0.3, 1, 0.3],
+           [0.2, -0.1, 0.2, 0.3, 1]]
+  - name: costs_block
+    params: [Theatre_cost_per_min_AU, Anaesthetist_hour_AU, ECT_session_cost_AU]
+    corr: [[1, 0.6, 0.5],[0.6,1,0.4],[0.5,0.4,1]]
+  - name: utilities_block
+    params: [Utility_depressed, Utility_remission, ECT_acute_disutility]
+    corr: [[1, 0.5, -0.2],[0.5,1,-0.2],[-0.2,-0.2,1]]

@@ -1,0 +1,4 @@
+sample_sizes: [50, 100, 200, 500]
+follow_up_months: 12
+endpoint_variance: 0.1
+trial_arms: [ECT_std, ECT_ket_anaesthetic]

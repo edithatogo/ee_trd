@@ -1,0 +1,48 @@
+time_horizon_years: 10
+cycle_length_months: 1
+currency_year: 2024
+effects_unit: QALYs
+currency: AUD
+jurisdictions:
+- AU
+perspectives:
+- health_system
+- societal
+discount_costs:
+  AU: 0.05
+discount_qalys:
+  AU: 0.05
+wtp_grid:
+- 0
+- 25000
+- 50000
+- 75000
+- 100000
+arms:
+- ECT_std
+- ECT_ket_anaesthetic  
+- IV_ketamine
+- Esketamine
+- Psilocybin
+- Oral_ketamine
+data_schemas:
+  clinical_induction: data/clinical_inputs.csv
+  durability_relapse: data/clinical_inputs.csv
+  cognition_ae_seizure: data/clinical_inputs.csv
+  sessions: data/clinical_inputs.csv
+  operations_per_session: data/clinical_inputs.csv
+  cost_inputs_au: data/cost_inputs_au.csv
+  cost_inputs_nz: data/cost_inputs_nz.csv
+  utilities: data/clinical_inputs.csv
+  parameters_psa: data/parameters_psa.csv
+  mcda_weights: data/clinical_inputs.csv
+  mcda_value_functions: data/clinical_inputs.csv
+  dcea_groups: data/clinical_inputs.csv
+  dcea_weights: data/clinical_inputs.csv
+  provenance_sources: data/clinical_inputs.csv
+  grade_certainty: data/clinical_inputs.csv
+  opportunity_cost_shares: data/clinical_inputs.csv
+  ecea_oop_inputs: data/clinical_inputs.csv
+  income_quintiles: data/clinical_inputs.csv
+correlated_psa: true
+grade_penalty: true

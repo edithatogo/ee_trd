@@ -1,0 +1,32 @@
+Parameter,BaseValue,Distribution
+Discount rate (AU),0.05,Fixed
+Discount rate (NZ),0.035,Fixed
+WTP AU (primary),50000,Fixed
+WTP NZ (primary),45000,Fixed
+ECT remission,0.60,"Beta(36,24)"
+ECT relapse 6m (no maint),0.50,"Beta(5,5)"
+M-ECT use,0.10,"Beta(2,18)"
+M-ECT relapse (annual),0.30,"Beta(3,7)"
+Ketamine remission (4w),0.45,"Beta(27,33)"
+Esketamine remission (4w),0.36,"Beta(18,32)"
+Psilocybin remission,0.40,"Beta(20,30)"
+Utility depressed,0.57,"Beta(57,43)"
+Utility remission,0.81,"Beta(81,19)"
+Cost ECT session AU,1000,Gamma(sd=200)
+Cost ketamine session AU,300,Gamma(sd=60)
+Cost esketamine session AU,800,Gamma(sd=160)
+Cost psilocybin program AU,15000,Gamma(sd=3000)
+Cost ECT session NZ,1000,Gamma(sd=200)
+Cost ketamine session NZ,350,Gamma(sd=70)
+Cost esketamine session NZ,500,Gamma(sd=100)
+Cost psilocybin program NZ,15000,Gamma(sd=3000)
+Productivity loss per year AU,2000,Gamma(sd=400)
+Informal care per year AU,10000,Gamma(sd=2000)
+OOP ECT per session AU,400,Gamma(sd=80)
+OOP Ketamine per session AU,100,Gamma(sd=20)
+Adverse disutility ECT,-0.1,Fixed
+Adverse disutility Ketamine,-0.05,Fixed
+Productivity loss per year NZ,1800,Gamma(sd=360)
+Informal care per year NZ,9000,Gamma(sd=1800)
+OOP ECT per session NZ,350,Gamma(sd=70)
+OOP Ketamine per session NZ,90,Gamma(sd=18)

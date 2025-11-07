@@ -1,0 +1,478 @@
+"""
+V4 Time-to-Benefit Analysis Engine
+
+Analyzes the temporal dynamics of treatment benefits, including speed of onset,
+benefit accrual curves, and time-to-meaningful-change calculations.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Optional, Dict, Tuple
+
+import numpy as np
+import pandas as pd
+
+
+
+@dataclass
+class TimeToBenefitResult:
+    """Container for time-to-benefit analysis results."""
+    
+    days_well_analysis: pd.DataFrame     # Days-well calculations
+    time_to_change: pd.DataFrame         # Time-to-meaningful-change analysis
+    benefit_accrual: pd.DataFrame        # Benefit accrual curves
+    speed_of_onset: pd.DataFrame         # Speed of onset metrics
+    summary_stats: pd.DataFrame          # Summary statistics
+    perspective: str
+    jurisdiction: Optional[str]
+
+
+@dataclass
+class BenefitAccrualResult:
+    """Container for benefit accrual analysis results."""
+    
+    accrual_curves: pd.DataFrame         # Benefit accumulation over time
+    inflection_points: pd.DataFrame      # Points of maximum benefit acceleration
+    plateau_times: pd.DataFrame          # Time to reach benefit plateau
+    comparative_analysis: pd.DataFrame   # Cross-treatment comparisons
+    perspective: str
+    jurisdiction: Optional[str]
+
+
+def calculate_days_well(
+    time_horizon: int = 365,
+    utility_trajectory: Optional[pd.DataFrame] = None,
+    baseline_utility: float = 0.5
+) -> pd.DataFrame:
+    """
+    Calculate quality-adjusted life days (days-well) for treatments.
+    
+    Args:
+        time_horizon: Analysis time horizon in days
+        utility_trajectory: DataFrame with utility values over time (optional)
+        baseline_utility: Baseline utility without treatment
+        
+    Returns:
+        DataFrame with days-well calculations
+    """
+    strategies = ["ECT", "KA-ECT", "IV-KA", "IN-EKA", "PO-PSI", "PO-KA", "rTMS", "UC+Li", "UC+AA", "Usual Care"]
+    
+    days_well_data = []
+    
+    for strategy in strategies:
+        # Generate mock utility trajectory (would use real data in practice)
+        if utility_trajectory is not None and strategy in utility_trajectory.columns:
+            utilities = utility_trajectory[strategy].values
+        else:
+            # Mock utility trajectory based on treatment characteristics
+            utilities = generate_mock_utility_trajectory(strategy, time_horizon, baseline_utility)
+        
+        # Calculate quality-adjusted life days
+        qald = np.sum(utilities)  # Sum of daily utilities
+        
+        # Calculate incremental days-well vs usual care
+        usual_care_utilities = generate_mock_utility_trajectory("Usual Care", time_horizon, baseline_utility)
+        incremental_qald = qald - np.sum(usual_care_utilities)
+        
+        # Calculate proportion of days with meaningful benefit
+        meaningful_threshold = baseline_utility + 0.1  # 10% improvement
+        days_with_benefit = np.sum(utilities > meaningful_threshold)
+        proportion_beneficial = days_with_benefit / time_horizon
+        
+        days_well_data.append({
+            "strategy": strategy,
+            "total_qald": qald,
+            "incremental_qald": incremental_qald,
+            "days_with_benefit": days_with_benefit,
+            "proportion_beneficial": proportion_beneficial,
+            "average_utility": np.mean(utilities),
+            "peak_utility": np.max(utilities),
+            "utility_variance": np.var(utilities)
+        })
+    
+    return pd.DataFrame(days_well_data)
+
+
+def generate_mock_utility_trajectory(
+    strategy: str,
+    time_horizon: int,
+    baseline_utility: float
+) -> np.ndarray:
+    """
+    Generate mock utility trajectory for a treatment strategy.
+    
+    Args:
+        strategy: Treatment strategy name
+        time_horizon: Time horizon in days
+        baseline_utility: Starting utility value
+        
+    Returns:
+        Array of daily utility values
+    """
+    time_points = np.arange(time_horizon)
+    
+    # Treatment-specific parameters (based on clinical knowledge)
+    treatment_params = {
+        "ECT": {"onset": 3, "peak": 14, "plateau": 0.85, "speed": 0.15},
+        "KA-ECT": {"onset": 2, "peak": 10, "plateau": 0.88, "speed": 0.18},
+        "IV-KA": {"onset": 1, "peak": 7, "plateau": 0.82, "speed": 0.20},
+        "IN-EKA": {"onset": 2, "peak": 14, "plateau": 0.78, "speed": 0.16},
+        "PO-PSI": {"onset": 14, "peak": 60, "plateau": 0.80, "speed": 0.08},
+        "PO-KA": {"onset": 7, "peak": 30, "plateau": 0.75, "speed": 0.12},
+        "rTMS": {"onset": 10, "peak": 28, "plateau": 0.70, "speed": 0.10},
+        "UC+Li": {"onset": 21, "peak": 90, "plateau": 0.68, "speed": 0.06},
+        "UC+AA": {"onset": 21, "peak": 90, "plateau": 0.65, "speed": 0.05},
+        "Usual Care": {"onset": 30, "peak": 180, "plateau": baseline_utility + 0.05, "speed": 0.03}
+    }
+    
+    params = treatment_params.get(strategy, treatment_params["Usual Care"])
+    
+    # Sigmoid benefit accrual curve
+    onset_day = params["onset"]
+    _peak_day = params["peak"]
+    plateau_utility = params["plateau"]
+    speed = params["speed"]
+    
+    # Calculate benefit accrual using logistic function
+    benefit_accrual = 1 / (1 + np.exp(-speed * (time_points - onset_day)))
+    
+    # Scale to reach plateau
+    max_benefit = plateau_utility - baseline_utility
+    scaled_benefit = max_benefit * benefit_accrual
+    
+    # Add baseline and some noise
+    utilities = baseline_utility + scaled_benefit
+    noise = np.random.normal(0, 0.02, time_horizon)  # Small random variation
+    utilities += noise
+    
+    # Ensure utilities stay within bounds
+    utilities = np.clip(utilities, 0.1, 0.95)
+    
+    return utilities
+
+
+def calculate_time_to_meaningful_change(
+    improvement_threshold: float = 0.1,
+    time_horizon: int = 365,
+    confidence_level: float = 0.8
+) -> pd.DataFrame:
+    """
+    Calculate time to achieve meaningful clinical improvement.
+    
+    Args:
+        improvement_threshold: Minimum improvement threshold
+        time_horizon: Analysis time horizon in days
+        confidence_level: Confidence level for time estimates
+        
+    Returns:
+        DataFrame with time-to-change analysis
+    """
+    strategies = ["ECT", "KA-ECT", "IV-KA", "IN-EKA", "PO-PSI", "PO-KA", "rTMS", "UC+Li", "UC+AA", "Usual Care"]
+    
+    time_to_change_data = []
+    
+    for strategy in strategies:
+        # Generate multiple utility trajectories for uncertainty analysis
+        n_simulations = 1000
+        time_to_improvement = []
+        
+        for _ in range(n_simulations):
+            baseline = 0.5
+            utilities = generate_mock_utility_trajectory(strategy, time_horizon, baseline)
+            
+            # Find first day where improvement exceeds threshold
+            improvement_days = np.where(utilities - baseline >= improvement_threshold)[0]
+            
+            if len(improvement_days) > 0:
+                time_to_improvement.append(improvement_days[0] + 1)  # 1-based days
+            else:
+                time_to_improvement.append(time_horizon)  # No improvement within horizon
+        
+        # Calculate statistics
+        time_to_change_data.append({
+            "strategy": strategy,
+            "median_time_to_change": np.median(time_to_improvement),
+            "mean_time_to_change": np.mean(time_to_improvement),
+            "time_to_change_std": np.std(time_to_improvement),
+            f"time_to_change_p{int(confidence_level*100)}": np.percentile(time_to_improvement, confidence_level*100),
+            "probability_improvement": np.mean(np.array(time_to_improvement) < time_horizon),
+            "earliest_improvement": np.min(time_to_improvement),
+            "latest_improvement": np.max(time_to_improvement)
+        })
+    
+    return pd.DataFrame(time_to_change_data)
+
+
+def analyze_benefit_accrual_curves(time_horizon: int = 365) -> BenefitAccrualResult:
+    """
+    Analyze benefit accrual curves and identify key inflection points.
+    
+    Args:
+        time_horizon: Analysis time horizon in days
+        
+    Returns:
+        Benefit accrual analysis results
+    """
+    strategies = ["ECT", "KA-ECT", "IV-KA", "IN-EKA", "PO-PSI", "PO-KA", "rTMS", "UC+Li", "UC+AA", "Usual Care"]
+    
+    accrual_curves = []
+    inflection_points = []
+    plateau_times = []
+    
+    for strategy in strategies:
+        baseline = 0.5
+        utilities = generate_mock_utility_trajectory(strategy, time_horizon, baseline)
+        
+        # Calculate benefit accrual (cumulative QALYs)
+        daily_benefits = utilities - baseline
+        cumulative_benefits = np.cumsum(daily_benefits)
+        
+        # Store accrual curve
+        for day, benefit in enumerate(cumulative_benefits):
+            accrual_curves.append({
+                "strategy": strategy,
+                "day": day + 1,
+                "cumulative_benefit": benefit,
+                "daily_benefit": daily_benefits[day],
+                "utility": utilities[day]
+            })
+        
+        # Find inflection point (maximum acceleration)
+        acceleration = np.gradient(np.gradient(cumulative_benefits))
+        inflection_day = np.argmax(np.abs(acceleration)) + 1
+        
+        inflection_points.append({
+            "strategy": strategy,
+            "inflection_day": inflection_day,
+            "max_acceleration": acceleration[inflection_day - 1],
+            "benefit_at_inflection": cumulative_benefits[inflection_day - 1]
+        })
+        
+        # Find plateau time (when benefit growth slows significantly)
+        benefit_growth = np.gradient(cumulative_benefits)
+        growth_threshold = np.max(benefit_growth) * 0.1  # 10% of peak growth
+        plateau_candidates = np.where(benefit_growth < growth_threshold)[0]
+        plateau_day = plateau_candidates[0] + 1 if len(plateau_candidates) > 0 else time_horizon
+        
+        plateau_times.append({
+            "strategy": strategy,
+            "plateau_day": plateau_day,
+            "total_benefit_at_plateau": cumulative_benefits[plateau_day - 1],
+            "plateau_utility": utilities[plateau_day - 1]
+        })
+    
+    # Create comparative analysis
+    accrual_df = pd.DataFrame(accrual_curves)
+    inflection_df = pd.DataFrame(inflection_points)
+    plateau_df = pd.DataFrame(plateau_times)
+    
+    comparative_data = []
+    for strategy in strategies:
+        strategy_data = accrual_df[accrual_df["strategy"] == strategy]
+        inflection_data = inflection_df[inflection_df["strategy"] == strategy].iloc[0]
+        plateau_data = plateau_df[plateau_df["strategy"] == strategy].iloc[0]
+        
+        comparative_data.append({
+            "strategy": strategy,
+            "total_benefit_30d": strategy_data[strategy_data["day"] <= 30]["cumulative_benefit"].max(),
+            "total_benefit_90d": strategy_data[strategy_data["day"] <= 90]["cumulative_benefit"].max(),
+            "total_benefit_365d": strategy_data["cumulative_benefit"].max(),
+            "inflection_day": inflection_data["inflection_day"],
+            "plateau_day": plateau_data["plateau_day"],
+            "speed_score": 1 / inflection_data["inflection_day"],  # Faster onset = higher score
+            "magnitude_score": plateau_data["total_benefit_at_plateau"]
+        })
+    
+    comparative_df = pd.DataFrame(comparative_data)
+    
+    return BenefitAccrualResult(
+        accrual_curves=accrual_df,
+        inflection_points=inflection_df,
+        plateau_times=plateau_df,
+        comparative_analysis=comparative_df,
+        perspective="health_system",  # Default
+        jurisdiction=None
+    )
+
+
+def calculate_speed_of_onset_metrics() -> pd.DataFrame:
+    """
+    Calculate speed of onset metrics for all strategies.
+    
+    Returns:
+        DataFrame with speed of onset analysis
+    """
+    strategies = ["ECT", "KA-ECT", "IV-KA", "IN-EKA", "PO-PSI", "PO-KA", "rTMS", "UC+Li", "UC+AA", "Usual Care"]
+    
+    speed_metrics = []
+    
+    for strategy in strategies:
+        # Generate utility trajectory
+        baseline = 0.5
+        time_horizon = 365
+        utilities = generate_mock_utility_trajectory(strategy, time_horizon, baseline)
+        
+        # Calculate various speed metrics
+        improvement_threshold = 0.1
+        improvement_days = np.where(utilities - baseline >= improvement_threshold)[0]
+        time_to_first_improvement = improvement_days[0] + 1 if len(improvement_days) > 0 else time_horizon
+        
+        # Time to 50% of maximum benefit
+        max_benefit = np.max(utilities - baseline)
+        half_benefit_threshold = baseline + max_benefit * 0.5
+        half_benefit_days = np.where(utilities >= half_benefit_threshold)[0]
+        time_to_half_benefit = half_benefit_days[0] + 1 if len(half_benefit_days) > 0 else time_horizon
+        
+        # Benefit velocity (first 30 days)
+        early_benefits = utilities[:30] - baseline
+        average_velocity_30d = np.mean(np.gradient(early_benefits))
+        
+        # Acceleration metrics
+        benefit_acceleration = np.gradient(np.gradient(utilities - baseline))
+        max_acceleration = np.max(benefit_acceleration)
+        time_of_max_acceleration = np.argmax(benefit_acceleration) + 1
+        
+        speed_metrics.append({
+            "strategy": strategy,
+            "time_to_first_improvement": time_to_first_improvement,
+            "time_to_half_benefit": time_to_half_benefit,
+            "average_velocity_30d": average_velocity_30d,
+            "max_acceleration": max_acceleration,
+            "time_of_max_acceleration": time_of_max_acceleration,
+            "speed_score": 1 / time_to_half_benefit,  # Composite speed metric
+            "acceleration_efficiency": max_acceleration / time_of_max_acceleration
+        })
+    
+    return pd.DataFrame(speed_metrics)
+
+
+def analyze_time_to_benefit(
+    time_horizon: int = 365,
+    improvement_threshold: float = 0.1,
+    baseline_utility: float = 0.5
+) -> TimeToBenefitResult:
+    """
+    Comprehensive time-to-benefit analysis.
+    
+    Args:
+        time_horizon: Analysis time horizon in days
+        improvement_threshold: Minimum improvement threshold
+        baseline_utility: Baseline utility value
+        
+    Returns:
+        Complete time-to-benefit analysis results
+    """
+    # Calculate all components
+    days_well = calculate_days_well(time_horizon, None, baseline_utility)
+    time_to_change = calculate_time_to_meaningful_change(improvement_threshold, time_horizon)
+    benefit_accrual = analyze_benefit_accrual_curves(time_horizon)
+    speed_of_onset = calculate_speed_of_onset_metrics()
+    
+    # Create summary statistics
+    summary_stats = pd.DataFrame({
+        "strategy": days_well["strategy"],
+        "days_well_rank": days_well["incremental_qald"].rank(ascending=False),
+        "time_to_change_rank": time_to_change["median_time_to_change"].rank(ascending=True),
+        "speed_rank": speed_of_onset["speed_score"].rank(ascending=False),
+        "magnitude_rank": benefit_accrual.comparative_analysis["magnitude_score"].rank(ascending=False),
+        "composite_score": (
+            days_well["incremental_qald"].rank(ascending=False) +
+            time_to_change["median_time_to_change"].rank(ascending=True) +
+            speed_of_onset["speed_score"].rank(ascending=False) +
+            benefit_accrual.comparative_analysis["magnitude_score"].rank(ascending=False)
+        ) / 4
+    })
+    
+    return TimeToBenefitResult(
+        days_well_analysis=days_well,
+        time_to_change=time_to_change,
+        benefit_accrual=benefit_accrual.accrual_curves,
+        speed_of_onset=speed_of_onset,
+        summary_stats=summary_stats,
+        perspective="health_system",
+        jurisdiction=None
+    )
+
+
+def perform_time_to_benefit_sensitivity_analysis(
+    base_case_result: TimeToBenefitResult,
+    parameter_ranges: Optional[Dict[str, Tuple[float, float]]] = None,
+    n_scenarios: int = 1000
+) -> pd.DataFrame:
+    """
+    Perform sensitivity analysis on time-to-benefit calculations.
+    
+    Args:
+        base_case_result: Base case time-to-benefit results
+        parameter_ranges: Ranges for sensitivity parameters
+        n_scenarios: Number of sensitivity scenarios
+        
+    Returns:
+        DataFrame with sensitivity analysis results
+    """
+    if parameter_ranges is None:
+        parameter_ranges = {
+            "improvement_threshold": (0.05, 0.2),  # 5% to 20% improvement
+            "baseline_utility": (0.3, 0.7),        # Range of baseline utilities
+            "time_horizon": (180, 730),            # 6 months to 2 years
+            "treatment_effect_variability": (0.8, 1.2)  # 80% to 120% of base effect
+        }
+    
+    strategies = base_case_result.days_well_analysis["strategy"].tolist()
+    sensitivity_results = []
+    
+    for strategy in strategies:
+        scenario_results = []
+        
+        for _ in range(n_scenarios):
+            # Sample parameters
+            threshold = np.random.uniform(*parameter_ranges["improvement_threshold"])
+            baseline = np.random.uniform(*parameter_ranges["baseline_utility"])
+            horizon = int(np.random.uniform(*parameter_ranges["time_horizon"]))
+            effect_multiplier = np.random.uniform(*parameter_ranges["treatment_effect_variability"])
+            
+            # Generate modified utility trajectory
+            utilities = generate_mock_utility_trajectory(strategy, horizon, baseline)
+            utilities = baseline + (utilities - baseline) * effect_multiplier
+            utilities = np.clip(utilities, 0.1, 0.95)
+            
+            # Calculate modified metrics
+            qald = np.sum(utilities)
+            incremental_qald = qald - (baseline * horizon)
+            
+            improvement_days = np.where(utilities - baseline >= threshold)[0]
+            time_to_improvement = improvement_days[0] + 1 if len(improvement_days) > 0 else horizon
+            
+            max_benefit = np.max(utilities - baseline)
+            half_benefit_threshold = baseline + max_benefit * 0.5
+            half_benefit_days = np.where(utilities >= half_benefit_threshold)[0]
+            time_to_half = half_benefit_days[0] + 1 if len(half_benefit_days) > 0 else horizon
+            
+            scenario_results.append({
+                "qald": qald,
+                "incremental_qald": incremental_qald,
+                "time_to_improvement": time_to_improvement,
+                "time_to_half_benefit": time_to_half,
+                "max_utility": np.max(utilities),
+                "threshold": threshold,
+                "baseline": baseline,
+                "horizon": horizon,
+                "effect_multiplier": effect_multiplier
+            })
+        
+        # Calculate sensitivity statistics
+        scenario_df = pd.DataFrame(scenario_results)
+        
+        sensitivity_results.append({
+            "strategy": strategy,
+            "qald_mean": scenario_df["qald"].mean(),
+            "qald_std": scenario_df["qald"].std(),
+            "qald_cv": scenario_df["qald"].std() / scenario_df["qald"].mean(),
+            "time_to_improvement_mean": scenario_df["time_to_improvement"].mean(),
+            "time_to_improvement_std": scenario_df["time_to_improvement"].std(),
+            "time_to_half_benefit_mean": scenario_df["time_to_half_benefit"].mean(),
+            "time_to_half_benefit_std": scenario_df["time_to_half_benefit"].std(),
+            # "most_influential_param": determine_most_influential_param(scenario_df),  # TODO: implement
+            # "robustness_score": calculate_robustness_score(scenario_df)  # TODO: implement
+        })
+   

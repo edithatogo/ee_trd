@@ -1,0 +1,59 @@
+base: "Usual Care"
+perspectives:
+  - "health_system"
+  - "societal"
+strategies:
+  - "Usual Care"
+  - "UC+Li"
+  - "UC+AA"
+  - "ECT"
+  - "rTMS"
+  - "KA-ECT"
+  - "IV-KA" 
+  - "IN-EKA"
+  - "PO-PSI"
+  - "PO-KA"
+  - "Step-care: Pharm → rTMS → IV-KA → ECT"
+  - "Step-care: Pharm → PO-KA → ECT"
+prices:
+  "Usual Care": 0
+  "UC+Li": 200
+  "UC+AA": 300
+  "ECT": 0
+  "rTMS": 0
+  "KA-ECT": 0
+  "IV-KA": 0
+  "IN-EKA": 0
+  "PO-PSI": 0
+  "PO-KA": 0
+  "Step-care: Pharm → rTMS → IV-KA → ECT": 0
+  "Step-care: Pharm → PO-KA → ECT": 0
+effects_unit: "QALYs"
+currency: "AUD"
+
+# Step-care pathway definitions
+step_care_sequences:
+  "Step-care: Pharm → rTMS → IV-KA → ECT":
+    - "Usual Care"
+    - "rTMS"
+    - "IV-KA"
+    - "ECT"
+  "Step-care: Pharm → PO-KA → ECT":
+    - "Usual Care"
+    - "PO-KA"
+    - "ECT"
+
+# Optional: human-friendly display names used in plots and captions
+labels:
+  "Usual Care": "Usual care (pharmacotherapy/psychotherapy)"
+  "UC+Li": "Usual care + lithium augmentation"
+  "UC+AA": "Usual care + atypical antipsychotic"
+  "ECT": "ECT (standard)"
+  "rTMS": "rTMS (repetitive transcranial magnetic stimulation)"
+  "KA-ECT": "ECT with ketamine anaesthetic" 
+  "IV-KA": "IV ketamine"
+  "IN-EKA": "Esketamine (intranasal)"
+  "PO psilocybin": "Psilocybin-assisted therapy"
+  "PO-KA": "Oral ketamine"
+  "Step-care: Pharm → rTMS → IV-KA → ECT": "Step-care: Pharm → rTMS → IV-KA → ECT"
+  "Step-care: Pharm → PO-KA → ECT": "Step-care: Pharm → PO-KA → ECT"

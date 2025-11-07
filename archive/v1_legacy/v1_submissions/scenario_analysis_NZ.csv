@@ -1,0 +1,25 @@
+Scenario,Description,Strategy,Mean_NMB,Mean_Inc_Cost,Mean_Inc_QALY,Prob_Cost_Effective,ICER,Effect_Multiplier,Cost_Multiplier
+Base Case,Base case assumptions,Ketamine,-3713.3152123554887,-5200.0,-0.1782663042471098,0.275,,1.0,1.0
+Base Case,Base case assumptions,Esketamine,-10281.401663000299,-4000.0,-0.28562803326000596,0.046,,1.0,1.0
+Base Case,Base case assumptions,Psilocybin,-24496.57138981277,7000.0,-0.3499314277962553,0.008,,1.0,1.0
+Optimistic,"Higher efficacy, lower costs",Ketamine,-9209.972818533233,-4160.0,-0.26739945637066465,0.1345,,1.5,0.8
+Optimistic,"Higher efficacy, lower costs",Esketamine,-18222.102494500446,-3200.0,-0.4284420498900089,0.0185,,1.5,0.8
+Optimistic,"Higher efficacy, lower costs",Psilocybin,-31844.857084719148,5600.0,-0.5248971416943828,0.0145,,1.5,0.8
+Pessimistic,"Lower efficacy, higher costs",Ketamine,520.6793513511582,-6760.0,-0.12478641297297685,0.577,,0.7,1.3
+Pessimistic,"Lower efficacy, higher costs",Esketamine,-4796.981164100207,-5200.0,-0.19993962328200415,0.1555,,0.7,1.3
+Pessimistic,"Lower efficacy, higher costs",Psilocybin,-21347.599972868935,9100.0,-0.2449519994573787,0.002,,0.7,1.3
+High Cost Scenario,All treatment costs 50% higher,Ketamine,-1113.3152123554887,-7800.0,-0.1782663042471098,0.451,,1.0,1.5
+High Cost Scenario,All treatment costs 50% higher,Esketamine,-8281.401663000299,-6000.0,-0.28562803326000596,0.0965,,1.0,1.5
+High Cost Scenario,All treatment costs 50% higher,Psilocybin,-27996.57138981277,10500.0,-0.3499314277962553,0.0035,,1.0,1.5
+Low Efficacy Scenario,40% lower treatment efficacy,Ketamine,-147.98912741329303,-5200.0,-0.10695978254826585,0.5105,,0.6,1.0
+Low Efficacy Scenario,40% lower treatment efficacy,Esketamine,-4568.840997800179,-4000.0,-0.17137681995600357,0.1165,,0.6,1.0
+Low Efficacy Scenario,40% lower treatment efficacy,Psilocybin,-17497.94283388766,7000.0,-0.20995885667775316,0.0025,,0.6,1.0
+Societal Perspective,Includes societal benefits,Ketamine,-4233.315212355489,-4680.0,-0.1782663042471098,0.237,,1.0,0.9
+Societal Perspective,Includes societal benefits,Esketamine,-10681.401663000299,-3600.0,-0.28562803326000596,0.0375,,1.0,0.9
+Societal Perspective,Includes societal benefits,Psilocybin,-23796.57138981277,6300.0,-0.3499314277962553,0.009,,1.0,0.9
+Short Time Horizon (2 years),2-year time horizon,Ketamine,-1930.6521698843915,-5200.0,-0.14261304339768782,0.366,,0.8,1.0
+Short Time Horizon (2 years),2-year time horizon,Esketamine,-7425.121330400239,-4000.0,-0.2285024266080048,0.0695,,0.8,1.0
+Short Time Horizon (2 years),2-year time horizon,Psilocybin,-20997.257111850213,7000.0,-0.27994514223700423,0.005,,0.8,1.0
+Long Time Horizon (10 years),10-year time horizon,Ketamine,-5495.978254826587,-5200.0,-0.2139195650965317,0.216,,1.2,1.0
+Long Time Horizon (10 years),10-year time horizon,Esketamine,-13137.681995600358,-4000.0,-0.34275363991200714,0.0335,,1.2,1.0
+Long Time Horizon (10 years),10-year time horizon,Psilocybin,-27995.885667775317,7000.0,-0.4199177133555063,0.011,,1.2,1.0

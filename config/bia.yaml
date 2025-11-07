@@ -1,0 +1,15 @@
+price_year: 2025
+currency: AUD
+perspective: health_system
+time_horizon_years: [2026,2027,2028,2029,2030]
+population_by_year: {2026: 5200000, 2027: 5240000, 2028: 5280000, 2029: 5320000, 2030: 5360000}
+eligibility_rate: 0.012
+uptake_by_year:
+  Oral ketamine: {2026: 0.05, 2027: 0.10, 2028: 0.15, 2029: 0.18, 2030: 0.20}
+  Therapy A:     {2026: 0.08, 2027: 0.08, 2028: 0.07, 2029: 0.06, 2030: 0.05}
+market_share:    {Oral ketamine: 0.30, Therapy A: 0.40, Therapy B: 0.20, Therapy C: 0.10}
+per_patient_costs:
+  Oral ketamine: {drug: 0, admin: 250, monitoring: 300}
+  Therapy A:     {drug: 0, admin: 400, monitoring: 200}
+include_discounting: false
+notes: "Update with real prices; drug cost for Oral ketamine comes from strategies.yml price."

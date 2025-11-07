@@ -1,0 +1,29 @@
+# Coefficients for linear mapping: delta_utility = intercept + slope * measure_delta
+# Or spline knots for non-linear
+
+mappings:
+  ECT_acute:
+    measure: HVLT-R_Delta  # Hopkins Verbal Learning Test - Revised delta
+    type: linear
+    intercept: 0.0
+    slope: -0.02  # Changed from -0.01
+    duration_months: 1  # Acute phase
+  ECT_maintenance:
+    measure: AMI_Delta  # Autobiographical Memory Interview delta
+    type: linear
+    intercept: 0.0
+    slope: -0.005
+    duration_months: 12  # Maintenance phase
+  Ketamine_acute:
+    measure: HVLT-R_Delta
+    type: linear
+    intercept: 0.0
+    slope: -0.008
+    duration_months: 1
+  # Add more as needed
+
+# Fallback flat disutilities if mapping not configured
+flat_disutilities:
+  ECT_acute: 0.0  # Flat disutility for ECT acute
+  ECT_maintenance: 0.0
+  Ketamine_acute: 0.0

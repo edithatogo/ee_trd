@@ -1,0 +1,15 @@
+draw,strategy,cost,effect,perspective
+1,Usual care,1000.0,2.0,health_system
+1,Therapy A,1150.0,2.1,health_system
+1,Therapy B,1300.0,2.05,health_system
+2,Usual care,1010.0,1.95,health_system
+2,Therapy A,1160.0,2.04,health_system
+2,Therapy B,1315.0,2.0,health_system
+1,Usual care,980.0,2.1,societal
+1,Therapy A,1100.0,2.25,societal
+1,Therapy B,1250.0,2.15,societal
+2,Usual care,990.0,2.0,societal
+2,Therapy A,1120.0,2.18,societal
+2,Therapy B,1265.0,2.05,societal
+1,Oral ketamine,1400.0,2.4,health_system
+2,Oral ketamine,1420.0,2.42,health_system

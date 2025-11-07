@@ -1,0 +1,13 @@
+Item,AUD_Value_2024,Unit
+ECT psychiatrist fee (MBS 14224),162.55,per session
+ECT anesthesia fee (MBS 20104),92.40,per session
+ECT total session cost (public),1000,per session
+ECT course sessions,8,count
+Ketamine session (IV) – drug,5,per session
+Ketamine session (IV) – admin/monitoring,250,per session
+Ketamine total session (IV),300,per session
+Esketamine session – assumed total,800,per session
+Psilocybin program (2-dose + therapy),15000,per patient
+Psychiatrist follow-up (annual),1500,per year
+Antidepressants (annual),360,per year
+Hospital psych day (context),1900,per day

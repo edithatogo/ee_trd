@@ -1,0 +1,691 @@
+"""
+External Validation Framework for V4 Health Economic Analysis
+
+This module provides comprehensive external validation capabilities including:
+- Calibration to real-world data
+- Posterior predictive checks
+- Cross-validation metrics
+- Model validation diagnostics
+- Goodness-of-fit assessments
+
+Author: V4 Development Team
+Date: October 2025
+"""
+
+import pandas as pd
+import numpy as np
+from typing import Dict, List, Optional, Any
+from dataclasses import dataclass
+from scipy import stats
+from sklearn.model_selection import KFold
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+import logging
+
+from analysis.core.io import save_results, load_psa
+
+# Configure logger for this module
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ValidationMetrics:
+    """Container for validation metrics and diagnostics."""
+
+    # Goodness-of-fit metrics
+    mse: float
+    mae: float
+    rmse: float
+    r_squared: float
+    adjusted_r_squared: float
+
+    # Predictive accuracy
+    mean_prediction_error: float
+    prediction_interval_coverage: float
+
+    # Calibration metrics
+    calibration_slope: float
+    calibration_intercept: float
+
+    # Cross-validation scores
+    cv_scores: List[float]
+    cv_mean: float
+    cv_std: float
+
+    # Posterior predictive checks
+    ppc_p_values: Dict[str, float]
+    ppc_statistics: Dict[str, float]
+
+    # Model diagnostics
+    residuals_mean: float
+    residuals_std: float
+    residuals_normality_p: float
+
+
+@dataclass
+class ExternalValidationResults:
+    """Results from external validation analysis."""
+
+    validation_metrics: ValidationMetrics
+    calibration_data: pd.DataFrame
+    predictive_checks: pd.DataFrame
+    cross_validation_results: pd.DataFrame
+    model_diagnostics: Dict[str, Any]
+
+    # Summary statistics
+    validation_summary: Dict[str, Any]
+
+
+class ExternalValidationEngine:
+    """
+    Engine for external validation of health economic models.
+
+    Provides comprehensive validation including calibration, predictive checks,
+    and model diagnostics to ensure model reliability and generalizability.
+    """
+
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """
+        Initialize the external validation engine.
+
+        Args:
+            config: Configuration dictionary with validation parameters
+        """
+        self.config = config or self._default_config()
+        self.validation_results = None
+
+    def _default_config(self) -> Dict[str, Any]:
+        """Get default configuration for external validation."""
+        return {
+            "cross_validation": {
+                "n_splits": 5,
+                "shuffle": True,
+                "random_state": 42
+            },
+            "calibration": {
+                "method": "linear",  # linear, isotonic, or spline
+                "confidence_level": 0.95
+            },
+            "predictive_checks": {
+                "n_simulations": 1000,
+                "test_statistics": ["mean", "std", "skewness", "kurtosis"]
+            },
+            "goodness_of_fit": {
+                "metrics": ["mse", "mae", "rmse", "r_squared"]
+            }
+        }
+
+    def validate_model(
+        self,
+        model_predictions: pd.DataFrame,
+        observed_data: pd.DataFrame,
+        external_data: Optional[pd.DataFrame] = None,
+        **kwargs
+    ) -> ExternalValidationResults:
+        """
+        Perform comprehensive external validation of the model.
+
+        Args:
+            model_predictions: DataFrame with model predictions
+            observed_data: DataFrame with observed data for validation
+            external_data: Optional external validation dataset
+            **kwargs: Additional validation parameters
+
+        Returns:
+            ExternalValidationResults with comprehensive validation metrics
+        """
+        logger.info("Starting comprehensive external validation")
+
+        # Perform calibration
+        calibration_results = self._calibrate_model(model_predictions, observed_data)
+
+        # Cross-validation
+        cv_results = self._cross_validate_model(model_predictions, observed_data)
+
+        # Posterior predictive checks
+        ppc_results = self._posterior_predictive_checks(model_predictions, observed_data)
+
+        # Goodness-of-fit assessment
+        gof_metrics = self._assess_goodness_of_fit(model_predictions, observed_data)
+
+        # Model diagnostics
+        diagnostics = self._model_diagnostics(model_predictions, observed_data)
+
+        # Combine results
+        validation_metrics = ValidationMetrics(
+            mse=gof_metrics["mse"],
+            mae=gof_metrics["mae"],
+            rmse=gof_metrics["rmse"],
+            r_squared=gof_metrics["r_squared"],
+            adjusted_r_squared=gof_metrics["adjusted_r_squared"],
+            mean_prediction_error=gof_metrics["mean_prediction_error"],
+            prediction_interval_coverage=gof_metrics["prediction_interval_coverage"],
+            calibration_slope=calibration_results["slope"],
+            calibration_intercept=calibration_results["intercept"],
+            cv_scores=cv_results["scores"],
+            cv_mean=cv_results["mean_score"],
+            cv_std=cv_results["std_score"],
+            ppc_p_values=ppc_results["p_values"],
+            ppc_statistics=ppc_results["statistics"],
+            residuals_mean=diagnostics["residuals_mean"],
+            residuals_std=diagnostics["residuals_std"],
+            residuals_normality_p=diagnostics["normality_p"]
+        )
+
+        # Create validation summary
+        validation_summary = self._create_validation_summary(
+            validation_metrics, calibration_results, cv_results, ppc_results
+        )
+
+        results = ExternalValidationResults(
+            validation_metrics=validation_metrics,
+            calibration_data=calibration_results["calibration_df"],
+            predictive_checks=ppc_results["checks_df"],
+            cross_validation_results=cv_results["cv_df"],
+            model_diagnostics=diagnostics,
+            validation_summary=validation_summary
+        )
+
+        self.validation_results = results
+        logger.info("External validation completed successfully")
+
+        return results
+
+    def _calibrate_model(
+        self,
+        predictions: pd.DataFrame,
+        observed: pd.DataFrame
+    ) -> Dict[str, Any]:
+        """
+        Calibrate model predictions to observed data.
+
+        Args:
+            predictions: Model predictions
+            observed: Observed data
+
+        Returns:
+            Dictionary with calibration results
+        """
+        logger.info("Performing model calibration")
+
+        # Align datasets
+        common_strategies = set(predictions["strategy"]).intersection(set(observed["strategy"]))
+        pred_filtered = predictions[predictions["strategy"].isin(common_strategies)]
+        obs_filtered = observed[observed["strategy"].isin(common_strategies)]
+
+        # Calculate calibration statistics
+        calibration_data = []
+
+        for strategy in common_strategies:
+            pred_vals = pred_filtered[pred_filtered["strategy"] == strategy]
+            obs_vals = obs_filtered[obs_filtered["strategy"] == strategy]
+
+            if len(pred_vals) > 0 and len(obs_vals) > 0:
+                # Simple linear calibration
+                pred_mean = pred_vals["effect"].mean()
+                obs_mean = obs_vals["effect"].mean()
+
+                calibration_data.append({
+                    "strategy": strategy,
+                    "predicted_mean": pred_mean,
+                    "observed_mean": obs_mean,
+                    "calibration_error": pred_mean - obs_mean,
+                    "relative_error": (pred_mean - obs_mean) / obs_mean if obs_mean != 0 else np.nan
+                })
+
+        calibration_df = pd.DataFrame(calibration_data)
+
+        # Overall calibration slope and intercept
+        if len(calibration_df) > 1:
+            slope, intercept = np.polyfit(
+                calibration_df["observed_mean"],
+                calibration_df["predicted_mean"],
+                1
+            )
+        else:
+            slope, intercept = 1.0, 0.0
+
+        return {
+            "slope": slope,
+            "intercept": intercept,
+            "calibration_df": calibration_df,
+            "mean_calibration_error": calibration_df["calibration_error"].mean(),
+            "rmse_calibration": np.sqrt((calibration_df["calibration_error"] ** 2).mean())
+        }
+
+    def _cross_validate_model(
+        self,
+        predictions: pd.DataFrame,
+        observed: pd.DataFrame
+    ) -> Dict[str, Any]:
+        """
+        Perform cross-validation of the model.
+
+        Args:
+            predictions: Model predictions
+            observed: Observed data
+
+        Returns:
+            Dictionary with cross-validation results
+        """
+        logger.info("Performing cross-validation")
+
+        # Prepare data for cross-validation
+        merge_keys = ["strategy"]
+        if "draw" in predictions.columns and "draw" in observed.columns:
+            merge_keys.append("draw")
+
+        merged_data = pd.merge(
+            predictions,
+            observed,
+            on=merge_keys,
+            suffixes=("_pred", "_obs")
+        )
+
+        if len(merged_data) < self.config["cross_validation"]["n_splits"]:
+            # Not enough data for cross-validation
+            cv_scores = [0.0]  # Placeholder
+            cv_mean = 0.0
+            cv_std = 0.0
+        else:
+            # Perform k-fold cross-validation
+            kf = KFold(
+                n_splits=self.config["cross_validation"]["n_splits"],
+                shuffle=self.config["cross_validation"]["shuffle"],
+                random_state=self.config["cross_validation"]["random_state"]
+            )
+
+            cv_scores = []
+            cv_results = []
+
+            for fold, (train_idx, test_idx) in enumerate(kf.split(merged_data)):
+                train_data = merged_data.iloc[train_idx]
+                test_data = merged_data.iloc[test_idx]
+
+                # Simple prediction model (could be enhanced)
+                pred_mean = train_data["effect_pred"].mean()
+                obs_test = test_data["effect_obs"]
+
+                # Calculate fold score (1 - normalized MSE)
+                mse = mean_squared_error([pred_mean] * len(obs_test), obs_test)
+                score = 1.0 / (1.0 + mse)  # Normalized score
+                cv_scores.append(score)
+
+                cv_results.append({
+                    "fold": fold + 1,
+                    "score": score,
+                    "n_train": len(train_idx),
+                    "n_test": len(test_idx)
+                })
+
+            cv_mean = np.mean(cv_scores)
+            cv_std = np.std(cv_scores)
+
+        cv_df = pd.DataFrame(cv_results) if cv_results else pd.DataFrame()
+
+        return {
+            "scores": cv_scores,
+            "mean_score": cv_mean,
+            "std_score": cv_std,
+            "cv_df": cv_df
+        }
+
+    def _posterior_predictive_checks(
+        self,
+        predictions: pd.DataFrame,
+        observed: pd.DataFrame
+    ) -> Dict[str, Any]:
+        """
+        Perform posterior predictive checks.
+
+        Args:
+            predictions: Model predictions
+            observed: Observed data
+
+        Returns:
+            Dictionary with posterior predictive check results
+        """
+        logger.info("Performing posterior predictive checks")
+
+        p_values = {}
+        statistics = {}
+        check_results = []
+
+        # Test statistics to check
+        test_stats = self.config["predictive_checks"]["test_statistics"]
+
+        for stat in test_stats:
+            if stat == "mean":
+                obs_stat = observed["effect"].mean()
+                pred_stats = [predictions.sample(n=len(observed), replace=True)["effect"].mean()
+                             for _ in range(self.config["predictive_checks"]["n_simulations"])]
+            elif stat == "std":
+                obs_stat = observed["effect"].std()
+                pred_stats = [predictions.sample(n=len(observed), replace=True)["effect"].std()
+                             for _ in range(self.config["predictive_checks"]["n_simulations"])]
+            elif stat == "skewness":
+                obs_stat = stats.skew(observed["effect"])
+                pred_stats = [stats.skew(predictions.sample(n=len(observed), replace=True)["effect"])
+                             for _ in range(self.config["predictive_checks"]["n_simulations"])]
+            elif stat == "kurtosis":
+                obs_stat = stats.kurtosis(observed["effect"])
+                pred_stats = [stats.kurtosis(predictions.sample(n=len(observed), replace=True)["effect"])
+                             for _ in range(self.config["predictive_checks"]["n_simulations"])]
+
+            # Calculate p-value (Bayesian p-value)
+            p_value = np.mean([1 if pred_stat >= obs_stat else 0 for pred_stat in pred_stats])
+
+            p_values[stat] = p_value
+            statistics[stat] = obs_stat
+
+            check_results.append({
+                "statistic": stat,
+                "observed_value": obs_stat,
+                "predicted_mean": np.mean(pred_stats),
+                "predicted_std": np.std(pred_stats),
+                "p_value": p_value,
+                "check_passed": 0.05 <= p_value <= 0.95  # Reasonable p-value range
+            })
+
+        checks_df = pd.DataFrame(check_results)
+
+        return {
+            "p_values": p_values,
+            "statistics": statistics,
+            "checks_df": checks_df
+        }
+
+    def _assess_goodness_of_fit(
+        self,
+        predictions: pd.DataFrame,
+        observed: pd.DataFrame
+    ) -> Dict[str, float]:
+        """
+        Assess goodness-of-fit between predictions and observations.
+
+        Args:
+            predictions: Model predictions
+            observed: Observed data
+
+        Returns:
+            Dictionary with goodness-of-fit metrics
+        """
+        logger.info("Assessing goodness-of-fit")
+
+        # Merge predictions and observations
+        merge_keys = ["strategy"]
+        if "draw" in predictions.columns and "draw" in observed.columns:
+            merge_keys.append("draw")
+
+        merged = pd.merge(
+            predictions,
+            observed,
+            on=merge_keys,
+            suffixes=("_pred", "_obs")
+        )
+
+        if len(merged) == 0:
+            return {
+                "mse": np.nan,
+                "mae": np.nan,
+                "rmse": np.nan,
+                "r_squared": np.nan,
+                "adjusted_r_squared": np.nan,
+                "mean_prediction_error": np.nan,
+                "prediction_interval_coverage": np.nan
+            }
+
+        y_true = merged["effect_obs"]
+        y_pred = merged["effect_pred"]
+
+        # Basic metrics
+        mse = mean_squared_error(y_true, y_pred)
+        mae = mean_absolute_error(y_true, y_pred)
+        rmse = np.sqrt(mse)
+        r_squared = r2_score(y_true, y_pred)
+
+        # Adjusted R-squared
+        n = len(y_true)
+        p = 1  # Simple model assumption
+        adjusted_r_squared = 1 - (1 - r_squared) * (n - 1) / (n - p - 1)
+
+        # Prediction error
+        prediction_errors = y_pred - y_true
+        mean_prediction_error = prediction_errors.mean()
+
+        # Prediction interval coverage (simplified)
+        pred_std = y_pred.std()
+        coverage = np.mean(np.abs(prediction_errors) <= 1.96 * pred_std)
+
+        return {
+            "mse": mse,
+            "mae": mae,
+            "rmse": rmse,
+            "r_squared": r_squared,
+            "adjusted_r_squared": adjusted_r_squared,
+            "mean_prediction_error": mean_prediction_error,
+            "prediction_interval_coverage": coverage
+        }
+
+    def _model_diagnostics(
+        self,
+        predictions: pd.DataFrame,
+        observed: pd.DataFrame
+    ) -> Dict[str, Any]:
+        """
+        Perform model diagnostics.
+
+        Args:
+            predictions: Model predictions
+            observed: Observed data
+
+        Returns:
+            Dictionary with diagnostic results
+        """
+        logger.info("Performing model diagnostics")
+
+        # Merge data
+        merge_keys = ["strategy"]
+        if "draw" in predictions.columns and "draw" in observed.columns:
+            merge_keys.append("draw")
+
+        merged = pd.merge(
+            predictions,
+            observed,
+            on=merge_keys,
+            suffixes=("_pred", "_obs")
+        )
+
+        if len(merged) == 0:
+            return {
+                "residuals_mean": np.nan,
+                "residuals_std": np.nan,
+                "normality_p": np.nan
+            }
+
+        # Calculate residuals
+        residuals = merged["effect_pred"] - merged["effect_obs"]
+
+        # Residual statistics
+        residuals_mean = residuals.mean()
+        residuals_std = residuals.std()
+
+        # Normality test
+        try:
+            _, normality_p = stats.shapiro(residuals)
+        except:
+            normality_p = np.nan  # Shapiro-Wilk may fail with small samples
+
+        return {
+            "residuals_mean": residuals_mean,
+            "residuals_std": residuals_std,
+            "normality_p": normality_p,
+            "residuals": residuals.tolist()
+        }
+
+    def _create_validation_summary(
+        self,
+        metrics: ValidationMetrics,
+        calibration: Dict,
+        cv: Dict,
+        ppc: Dict
+    ) -> Dict[str, Any]:
+        """
+        Create a comprehensive validation summary.
+
+        Args:
+            metrics: Validation metrics
+            calibration: Calibration results
+            cv: Cross-validation results
+            ppc: Posterior predictive check results
+
+        Returns:
+            Dictionary with validation summary
+        """
+        # Overall model quality assessment
+        r_squared_good = metrics.r_squared > 0.7
+        calibration_good = abs(metrics.calibration_slope - 1.0) < 0.1
+        cv_consistent = metrics.cv_std < 0.1
+        ppc_good = all(0.05 <= p <= 0.95 for p in metrics.ppc_p_values.values())
+
+        overall_quality = "Good" if all([r_squared_good, calibration_good, cv_consistent, ppc_good]) else "Needs Improvement"
+
+        return {
+            "overall_model_quality": overall_quality,
+            "goodness_of_fit": {
+                "r_squared_acceptable": r_squared_good,
+                "rmse_value": metrics.rmse,
+                "mae_value": metrics.mae
+            },
+            "calibration": {
+                "slope_close_to_1": calibration_good,
+                "mean_calibration_error": calibration["mean_calibration_error"]
+            },
+            "cross_validation": {
+                "consistent_performance": cv_consistent,
+                "cv_score_range": f"{metrics.cv_mean:.3f} ± {metrics.cv_std:.3f}"
+            },
+            "posterior_predictive_checks": {
+                "all_checks_passed": ppc_good,
+                "extreme_p_values": [k for k, v in metrics.ppc_p_values.items() if v < 0.05 or v > 0.95]
+            },
+            "recommendations": self._generate_recommendations(metrics, calibration, cv, ppc)
+        }
+
+    def _generate_recommendations(
+        self,
+        metrics: ValidationMetrics,
+        calibration: Dict,
+        cv: Dict,
+        ppc: Dict
+    ) -> List[str]:
+        """
+        Generate recommendations based on validation results.
+
+        Args:
+            metrics: Validation metrics
+            calibration: Calibration results
+            cv: Cross-validation results
+            ppc: Posterior predictive check results
+
+        Returns:
+            List of recommendations
+        """
+        recommendations = []
+
+        if metrics.r_squared < 0.7:
+            recommendations.append("Consider improving model fit - R² is below 0.7")
+
+        if abs(metrics.calibration_slope - 1.0) >= 0.1:
+            recommendations.append("Model may be miscalibrated - slope deviates significantly from 1.0")
+
+        if metrics.cv_std >= 0.1:
+            recommendations.append("Model performance is inconsistent across folds - consider regularization")
+
+        extreme_p_values = [k for k, v in metrics.ppc_p_values.items() if v < 0.05 or v > 0.95]
+        if extreme_p_values:
+            recommendations.append(f"Posterior predictive checks failed for: {', '.join(extreme_p_values)}")
+
+        if not recommendations:
+            recommendations.append("Model validation successful - no major issues identified")
+
+        return recommendations
+
+    def save_validation_results(
+        self,
+        results: ExternalValidationResults,
+        output_dir: str = "results/validation"
+    ) -> None:
+        """
+        Save validation results to disk.
+
+        Args:
+            results: Validation results to save
+            output_dir: Directory to save results
+        """
+        logger.info(f"Saving validation results to {output_dir}")
+
+        # Save validation metrics
+        metrics_df = pd.DataFrame([{
+            "metric": "mse", "value": results.validation_metrics.mse
+        }, {
+            "metric": "mae", "value": results.validation_metrics.mae
+        }, {
+            "metric": "rmse", "value": results.validation_metrics.rmse
+        }, {
+            "metric": "r_squared", "value": results.validation_metrics.r_squared
+        }, {
+            "metric": "calibration_slope", "value": results.validation_metrics.calibration_slope
+        }, {
+            "metric": "cv_mean", "value": results.validation_metrics.cv_mean
+        }])
+
+        save_results(metrics_df, f"{output_dir}/validation_metrics.csv")
+
+        # Save calibration data
+        save_results(results.calibration_data, f"{output_dir}/calibration_data.csv")
+
+        # Save predictive checks
+        save_results(results.predictive_checks, f"{output_dir}/predictive_checks.csv")
+
+        # Save cross-validation results
+        save_results(results.cross_validation_results, f"{output_dir}/cross_validation.csv")
+
+        # Save validation summary
+        summary_df = pd.DataFrame(list(results.validation_summary.items()), columns=["aspect", "details"])
+        save_results(summary_df, f"{output_dir}/validation_summary.csv")
+
+        logger.info("Validation results saved successfully")
+
+
+def run_external_validation(
+    psa_data_path: str,
+    observed_data_path: str,
+    config: Optional[Dict[str, Any]] = None,
+    output_dir: str = "results/validation"
+) -> ExternalValidationResults:
+    """
+    Convenience function to run external validation.
+
+    Args:
+        psa_data_path: Path to PSA data file
+        observed_data_path: Path to observed data file
+        config: Validation configuration
+        output_dir: Output directory
+
+    Returns:
+        ExternalValidationResults
+    """
+    # Load data
+    psa_data = load_psa(Path(psa_data_path))
+    observed_data = pd.read_csv(observed_data_path)
+
+    # Initialize engine
+    engine = ExternalValidationEngine(config)
+
+    # Run validation
+    results = engine.validate_model(psa_data, observed_data)
+
+    # Save results
+    engine.save_validation_results(results, output_dir)
+
+    return results

@@ -1,0 +1,9 @@
+group,weight,source_id,notes
+atkinson,0.0,atkinson,Atkinson epsilon defaults
+atkinson,0.5,atkinson,Atkinson epsilon defaults
+atkinson,1.0,atkinson,Atkinson epsilon defaults
+atkinson,2.0,atkinson,Atkinson epsilon defaults
+AU_general,1.0,explicit,NEEDS_DATA: Explicit weights for subgroups
+AU_priority,1.5,explicit,NEEDS_DATA: Explicit weights for subgroups
+NZ_general,1.0,explicit,NEEDS_DATA: Explicit weights for subgroups
+NZ_priority,1.5,explicit,NEEDS_DATA: Explicit weights for subgroups

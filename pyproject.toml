@@ -1,0 +1,182 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trd-cea-toolkit"
+version = "0.4.0"
+description = "Health Economic Evaluation Toolkit for Treatment-Resistant Depression Interventions"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Research Team", email = "research@example.com"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research", 
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Typing :: Typed"
+]
+requires-python = ">=3.10"
+dependencies = [
+    "pandas>=1.5.0",
+    "numpy>=1.24.0", 
+    "matplotlib>=3.6.0",
+    "seaborn>=0.12.0",
+    "pyyaml>=6.0",
+    "biopython>=1.80",
+    "requests>=2.28.0",
+    "pymc>=5.0.0",
+    "arviz>=0.15.0", 
+    "scipy>=1.10.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "sphinx>=5.0.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8", 
+    "mypy",
+    "pre-commit",
+    "jupyter",
+    "tox",
+    "bandit",
+    "safety",
+    "isort",
+    "flake8-bugbear",
+    "flake8-comprehensions",
+    "pandas-stubs",
+    "types-pyyaml",
+    "pytest-xdist",
+    "pytest-mock",
+    "pytest-asyncio>=0.21.0"
+]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+    "sphinx-autodoc-typehints"
+]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0", 
+    "pytest-xdist>=3.0.0",
+    "pytest-mock>=3.10.0",
+    "pytest-asyncio>=0.21.0",
+    "hypothesis>=6.0.0",
+    "coverage>=7.0.0"
+]
+quality = [
+    "black",
+    "flake8",
+    "mypy", 
+    "isort",
+    "bandit",
+    "safety",
+    "pre-commit"
+]
+
+[project.urls]
+Homepage = "https://github.com/user/trd-cea-toolkit"
+Repository = "https://github.com/user/trd-cea-toolkit" 
+Documentation = "https://trd-cea-toolkit.readthedocs.io/"
+
+[project.scripts]
+trd-cea-analyze = "scripts.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["scripts*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "biopython.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "scripts.models.*"
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "scripts.core.*"
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "scripts.analysis.*"
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "scripts.plotting.*"
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--tb=short",
+    "--disable-warnings",
+    "--verbose",
+    "--cov=scripts",
+    "--cov=analysis",
+    "--cov-report=html",
+    "--cov-report=term",
+    "--cov-report=xml",
+    "--cov-fail-under=50"
+]
+
+[tool.coverage.run]
+source = ["scripts", "analysis"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/conftest.py",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/.venv/*",
+    "*/env/*",
+    "*/.env/*",
+    "*/.tox/*",
+    "scripts/cli.py"  # CLI has minimal testable logic
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "if typing.TYPE_CHECKING:"
+]

@@ -1,0 +1,80 @@
+# Snakefile for nextgen_v3 pipelines
+
+rule v3_all:
+    input:
+        "nextgen_v3/out/cea_results_by_arm_v3.csv",
+        "nextgen_v3/out/psa_results_v3.csv",
+        "nextgen_v3/out/bia_summary_AU_v3.csv",
+        "nextgen_v3/out/dcea_by_group_v3.csv",
+        "nextgen_v3/out/evppi_v3.csv",
+        "nextgen_v3/out/regret_table_v3.csv",
+        "nextgen_v3/out/ecea_results_v3.csv",
+        "nextgen_v3/out/structural_sensitivity_v3.csv"
+
+rule v3_sourcing:
+    output:
+        "nextgen_v3/out/sourcing.done"
+    shell:
+        "python nextgen_v3/cli/run_sourcing.py --costs-au data/cost_inputs_au.csv --utilities data/clinical_inputs.csv && touch {output}"
+
+rule v3_cea:
+    input:
+        "nextgen_v3/out/sourcing.done"
+    output:
+        "nextgen_v3/out/cea_results_by_arm_v3.csv"
+    shell:
+        "python nextgen_v3/cli/run_cea.py --jur AU --perspective health_system"
+
+rule v3_psa:
+    input:
+        "nextgen_v3/out/cea_results_by_arm_v3.csv"
+    output:
+        "nextgen_v3/out/psa_results_v3.csv"
+    shell:
+        "python nextgen_v3/cli/run_psa.py"
+
+rule v3_dsa:
+    output:
+        "nextgen_v3/out/tornado_v3.png"
+    shell:
+        "python nextgen_v3/cli/run_dsa.py"
+
+rule v3_dcea:
+    input:
+        "nextgen_v3/out/cea_results_by_arm_v3.csv"
+    output:
+        "nextgen_v3/out/dcea_by_group_v3.csv"
+    shell:
+        "python nextgen_v3/cli/run_dcea.py"
+
+rule v3_bia:
+    output:
+        "nextgen_v3/out/bia_summary_AU_v3.csv"
+    shell:
+        "python nextgen_v3/cli/run_bia.py --jur AU"
+
+rule v3_evi:
+    output:
+        "nextgen_v3/out/evppi_v3.csv"
+    shell:
+        "python nextgen_v3/cli/run_evi.py"
+
+rule v3_regret:
+    input:
+        "nextgen_v3/out/psa_results_v3.csv"
+    output:
+        "nextgen_v3/out/regret_table_v3.csv"
+    shell:
+        "python nextgen_v3/cli/run_psa.py"  # Regret computed in PSA
+
+rule v3_ecea:
+    output:
+        "nextgen_v3/out/ecea_results_v3.csv"
+    shell:
+        "python nextgen_v3/cli/run_cea.py --opportunity-cost"
+
+rule v3_structural:
+    output:
+        "nextgen_v3/out/structural_sensitivity_v3.csv"
+    shell:
+        "python nextgen_v3/cli/run_cea.py --structural-pack"

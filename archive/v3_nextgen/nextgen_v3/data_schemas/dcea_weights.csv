@@ -1,0 +1,12 @@
+group,weight,source_id,notes
+atkinson_epsilon_0,0,Cookson_2017,"Utilitarian approach: total health maximization without equity concern"
+atkinson_epsilon_0.5,0.5,Asaria_2016,"Low equity concern: slight preference for health gains in worse-off groups"
+atkinson_epsilon_1,1,Cookson_2017,"Moderate equity concern: standard health economics equity weighting"
+atkinson_epsilon_1.2,1.2,Pacific_equity,"Moderate-high equity priority for Pacific populations based on documented health disparities"
+atkinson_epsilon_1.5,1.5,Indigenous_equity,"High equity priority for Indigenous populations (Māori, Aboriginal & Torres Strait Islander)"
+atkinson_epsilon_2,2,Rural_Indigenous_equity,"Very high equity priority for rural Indigenous populations with geographic barriers"
+AU_Aboriginal_Torres_Strait_Islander_weight,1.8,AIHW_2022,"Health disparity multiplier: 8.6 year life expectancy gap and documented access barriers"
+NZ_Māori_weight,1.7,MOH_2019,"Health disparity multiplier: 7.3 year life expectancy gap and Te Tiriti obligations"
+AU_Pacific_weight,1.4,AIHW_2021,"Moderate health disparity multiplier for Pacific populations in Australia"
+NZ_Pacific_weight,1.5,MOH_2020,"Health disparity multiplier for Pacific populations in New Zealand"
+Rural_access_multiplier,1.3,AIHW_2020,"Geographic access penalty for rural populations with limited specialist services"

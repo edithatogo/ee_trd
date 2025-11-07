@@ -1,0 +1,7 @@
+state,utility,source_id
+depressed,0.30,ref_8
+remission,0.85,ref_8
+maintenance,0.80,ref_8
+relapse,0.35,ref_8
+adverse_event,0.25,ref_9
+death,0.00,standard

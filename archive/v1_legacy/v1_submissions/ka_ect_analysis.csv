@@ -1,0 +1,3 @@
+Country,Intervention,Incremental_Cost,Incremental_QALYs,NMB,Probability_Cost_Effective,Key_Advantage
+AU,KA-ECT vs Standard ECT,50,0.014999999999999958,699.9999999999978,0.62,Reduced adverse effects (25% reduction in cognitive impairment)
+NZ,KA-ECT vs Standard ECT,100,0.014999999999999958,574.9999999999981,0.58,Reduced adverse effects (25% reduction in cognitive impairment)

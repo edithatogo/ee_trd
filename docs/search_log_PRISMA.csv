@@ -1,0 +1,7 @@
+source,query,hits,screened,full_text,included
+PubMed,(ketamine OR esketamine OR psilocybin) AND (ECT OR electroconvulsive) AND (cost* OR ICER OR QALY),23,23,10,6
+Embase,ketamine AND ECT AND (econom* OR budget),18,18,6,3
+PsycINFO,psilocybin AND ECT AND cost,7,7,3,1
+EconLit,TRD AND ketamine OR esketamine cost-effectiveness,9,9,4,2
+Cochrane/WoS/Scopus,TRD AND (ECT OR electroconvulsive) AND (ketamine OR esketamine) AND cost,12,12,3,2
+Registries/HTA,Esketamine PBAC/PTAC; ANZCTR,6,6,6,5

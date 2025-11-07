@@ -1,0 +1,64 @@
+# ECT-Focused Strategy Configuration (V4)
+# ============================================================================
+# CRITICAL: ECT is reference strategy (matches actual PSA data structure)
+# Excludes usual care variants to focus on advanced therapies vs ECT
+
+base: "ECT"
+
+perspectives:
+  - "health_system"
+  - "societal"
+
+jurisdictions:
+  - "AU"
+  - "NZ"
+
+# ECT-Focused Therapy Strategies (advanced therapies vs ECT)
+strategies:
+  - "ECT"             # Standard Electroconvulsive Therapy (reference)
+  - "KA-ECT"          # Ketamine-Assisted ECT
+  - "IV-KA"           # Intravenous Ketamine
+  - "IN-EKA"          # Intranasal Esketamine
+  - "PO-PSI"          # Oral Psilocybin-Assisted Therapy
+  - "PO-KA"           # Oral Ketamine
+  - "rTMS"            # Repetitive Transcranial Magnetic Stimulation
+
+# Pricing parameters (incremental costs vs ECT)
+prices:
+  "ECT": 0            # Reference strategy
+  "KA-ECT": 500       # Additional cost for ketamine assistance
+  "IV-KA": -700       # Cost saving vs ECT
+  "IN-EKA": -2000     # Significant cost saving
+  "PO-PSI": -300      # Moderate cost saving
+  "PO-KA": -500       # Cost saving
+  "rTMS": -1500       # Significant cost saving
+
+# Effects and currency
+effects_unit: "QALYs"
+currency: "AUD"
+
+# Human-friendly display names for plots and tables
+labels:
+  "ECT": "Standard electroconvulsive therapy"
+  "KA-ECT": "Ketamine-assisted ECT"
+  "IV-KA": "Intravenous ketamine"
+  "IN-EKA": "Intranasal esketamine"
+  "PO-PSI": "Oral psilocybin-assisted therapy"
+  "PO-KA": "Oral ketamine"
+  "rTMS": "Repetitive transcranial magnetic stimulation"
+
+# Full therapy names for documentation
+full_names:
+  "ECT": "Standard Electroconvulsive Therapy"
+  "KA-ECT": "Ketamine-Assisted ECT"
+  "IV-KA": "Intravenous Ketamine"
+  "IN-EKA": "Intranasal Esketamine"
+  "PO-PSI": "Oral Psilocybin-Assisted Therapy"
+  "PO-KA": "Oral Ketamine"
+  "rTMS": "Repetitive Transcranial Magnetic Stimulation"
+
+metadata:
+  version: "4.0"
+  variant: "ECT-Focused"
+  created: "2025-10-19"
+  note: "ECT-focused analysis with ECT as reference, excluding usual care variants"

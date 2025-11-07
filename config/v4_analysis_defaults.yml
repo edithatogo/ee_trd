@@ -1,0 +1,152 @@
+# V4 Analysis Default Parameters
+# Unified configuration for all V4 analyses
+
+# Version
+version: "4.0.0"
+
+# Input data paths
+data:
+  psa: "data/psa_extended.csv"
+  clinical_inputs: "data/clinical_inputs.csv"
+  cost_inputs_au: "data/cost_inputs_au.csv"
+  cost_inputs_nz: "data/cost_inputs_nz.csv"
+  utilities: "data/utilities.csv"
+  parameters_psa: "data/parameters_psa.csv"
+
+# Strategy configuration
+strategies_yaml: "config/v4_strategies.yml"
+
+# Analysis perspectives
+perspectives:
+  - "health_system"
+  - "societal"
+
+# Geographic jurisdictions
+jurisdictions:
+  - "AU"
+  - "NZ"
+
+# Willingness-to-pay (WTP) parameters
+wtp:
+  min: 0
+  max: 75000
+  step: 1000
+  default: 50000
+  thresholds:
+    - 30000
+    - 45000
+    - 50000
+
+# Price analysis parameters
+pricing:
+  min: 0
+  max: 50000
+  step: 500
+
+# PSA parameters
+psa:
+  iterations: 10000
+  seed: 42
+  convergence_check: true
+  min_iterations: 1000
+
+# Discount rates
+discount:
+  costs: 0.05      # 5% for Australia
+  effects: 0.05    # 5% for Australia
+  costs_nz: 0.035  # 3.5% for New Zealand
+  effects_nz: 0.035
+
+# Time horizon
+time_horizon:
+  years: 10
+  cycle_length: "monthly"
+
+# Output configuration
+output:
+  root_dir: "results/v4_{date}"
+  formats:
+    - "csv"
+    - "json"
+  figures:
+    formats:
+      - "png"
+      - "pdf"
+      - "svg"
+      - "tiff"
+    dpi: 300
+    style: "publication"
+
+# Random seed for reproducibility
+seed: 42
+
+# Performance settings
+performance:
+  parallel: true
+  n_cores: -1  # Use all available cores
+  memory_limit_gb: 16
+  progress_tracking: true
+
+# Validation settings
+validation:
+  check_inputs: true
+  check_outputs: true
+  publication_readiness: true
+
+# Analysis modules to run
+modules:
+  cua: true              # Cost-Utility Analysis
+  dcea: true             # Distributional CEA
+  voi: true              # Value of Information
+  vbp: true              # Value-Based Pricing
+  bia: true              # Budget Impact Analysis
+  sensitivity: true      # Sensitivity Analysis
+  subgroup: true         # Subgroup Analysis
+
+# Sensitivity analysis settings
+sensitivity:
+  one_way: true
+  two_way: true
+  three_way: true
+  tornado: true
+  scenario: true
+
+# Subgroup analysis settings
+subgroups:
+  age: true
+  gender: true
+  severity: true
+  indigenous: true       # Aboriginal, Māori, Pacific Islander
+
+# Indigenous population analysis
+indigenous:
+  enabled: true
+  populations:
+    - "Aboriginal"
+    - "Māori"
+    - "Pacific Islander"
+  cultural_adaptation: true
+
+# Equity analysis settings
+equity:
+  atkinson_epsilon: 1.5
+  social_welfare: true
+  distributional_impact: true
+
+# Publication settings
+publication:
+  journal: "Australian and New Zealand Journal of Psychiatry"
+  figure_standards:
+    resolution: 300
+    formats: ["tiff", "eps", "pdf"]
+    dimensions:
+      single_column_mm: 84
+      double_column_mm: 174
+      full_page_width_mm: 174
+      full_page_height_mm: 234
+    fonts:
+      min_size: 8
+      preferred: ["Arial", "Helvetica"]
+    colors:
+      mode: "RGB"
+      profile: "sRGB"

@@ -1,0 +1,149 @@
+# Configuration for Cost-Effectiveness Analysis (CEA)
+
+cea:
+  parameters:
+    time_horizon: 10  # Time horizon in years
+    discount_rate_costs: 0.035  # Discount rate for costs
+    discount_rate_effects: 0.035  # Discount rate for effects
+    wtp_threshold: 50000  # Willingness-to-pay threshold per QALY
+    perspective: "healthcare"  # Analysis perspective: healthcare, societal
+  
+  outputs:
+    save_results: true
+    export_format: ["csv", "excel"]  # Output formats
+    plot_ce_plane: true
+    plot_ceac: true
+
+# Configuration for Distributional Cost-Effectiveness Analysis (DCEA)
+dcea:
+  parameters:
+    time_horizon: 10
+    discount_rate_costs: 0.035
+    discount_rate_effects: 0.035
+    equity_weights: 
+      age: 0.3
+      severity: 0.4
+      socioeconomic: 0.3
+    population_subgroups: ["general", "indigenous", "rural", "severe"]
+    atkinson_inequality_aversion: 0.5  # Inequality aversion parameter
+  
+  outputs:
+    save_results: true
+    include_equity_report: true
+    plot_distributional_weights: true
+
+# Configuration for Value of Information (VOI) Analysis
+voi:
+  parameters:
+    n_simulations: 5000  # Number of simulations for EVPI calculation
+    evpi_enabled: true  # Calculate Expected Value of Perfect Information
+    evppi_enabled: true  # Calculate Expected Value of Partial Perfect Information
+    evsi_enabled: true  # Calculate Expected Value of Sample Information
+    max_sample_size: 500  # Maximum sample size for EVSI
+    sample_sizes: [50, 100, 200, 500, 1000]  # Sample sizes to evaluate for EVSI
+    parameters_for_evppi: ["treatment_effect", "cost_treatment", "utility_gain"]  # Parameters for EVPPI
+  
+  outputs:
+    save_results: true
+    plot_evpi: true
+    plot_evsi: true
+    create_voi_report: true
+
+# Configuration for Budget Impact Analysis (BIA)
+bia:
+  parameters:
+    time_horizon: 5  # Years for budget impact projection
+    discount_rate: 0.035  # Discount rate for budget impact
+    target_population_size: 10000  # Size of target population
+    adoption_curve_type: "sigmoid"  # Type of adoption curve: sigmoid, linear, exponential
+    initial_market_share: 0.1  # Initial market share
+    maximum_market_share: 0.8  # Maximum achievable market share
+    time_to_maximum_adoption: 3  # Years to reach maximum adoption
+    perspective: "healthcare"  # Perspective: healthcare, societal
+    price_scenarios:  # Different price scenarios to test
+      - name: "base_case"
+        multipliers: {"IV_KA": 1.0, "PO_KA": 1.0}  # Price multipliers relative to base
+      - name: "conservative"
+        multipliers: {"IV_KA": 1.2, "PO_KA": 1.1}
+      - name: "optimistic" 
+        multipliers: {"IV_KA": 0.8, "PO_KA": 0.9}
+  
+  outputs:
+    save_results: true
+    plot_budget_impact: true
+    export_projections: true
+
+# Configuration for Multi-Criteria Decision Analysis (MCDA)
+mcda:
+  parameters:
+    criteria_weights:  # Weights for different criteria
+      clinical_effectiveness: 0.35
+      safety: 0.25
+      cost: 0.2
+      implementation_feasibility: 0.1
+      patient_convenience: 0.1
+    value_functions:  # Value function types for each criterion
+      clinical_effectiveness: "linear"
+      safety: "exponential"
+      cost: "linear_inverse"  # Inverse relationship (lower cost = higher value)
+      implementation_feasibility: "linear"
+      patient_convenience: "linear"
+    normalization_method: "min_max"  # Method to normalize scores
+    uncertainty_analysis: true  # Whether to include uncertainty in MCDA
+  
+  outputs:
+    save_results: true
+    plot_criteria_weights: true
+    plot_sensitivity: true
+
+# Configuration for Value-Based Pricing (VBP)
+vbp:
+  parameters:
+    competitor_price: 5000  # Price of current standard of care
+    health_benefit_threshold: 0.05  # Threshold for health benefit (QALYs)
+    budget_impact_threshold: 1000000  # Max annual budget impact allowed ($AUD)
+    time_horizon: 5  # Time horizon for budget impact
+    discount_rate: 0.035  # Discount rate
+    market_access_scenarios:  # Different market access scenarios
+      - name: "full_access"
+        population_access: 1.0
+        uptake_rate: 0.8
+      - name: "limited_access" 
+        population_access: 0.5
+        uptake_rate: 0.4
+      - name: "restricted_access"
+        population_access: 0.2
+        uptake_rate: 0.2
+  
+  outputs:
+    save_results: true
+    plot_vbp_curve: true
+    create_price_recommendations: true
+
+# Configuration for Sensitivity Analysis
+sensitivity:
+  parameters:
+    one_way:  # One-way sensitivity analysis
+      parameters_to_vary: ["treatment_effect", "cost_treatment", "utility_remision"]
+      ranges:  # Ranges for parameter variation
+        treatment_effect: [0.7, 1.3]  # Multipliers
+        cost_treatment: [0.8, 1.5]   # Multipliers
+        utility_remision: [0.85, 1.15] # Multipliers
+      n_points: 11  # Number of points to test
+      
+    two_way:  # Two-way sensitivity analysis
+      parameter_pairs: 
+        - ["treatment_effect", "cost_treatment"]
+        - ["treatment_effect", "utility_remision"]
+        - ["cost_treatment", "utility_remision"]
+      
+    probabilistic:  # Probabilistic sensitivity analysis
+      n_simulations: 1000
+      method: "monte_carlo"  # Method for sampling: monte_carlo, latin_hypercube
+    
+  outputs:
+    save_results: true
+    plot_tornado: true
+    plot_two_way: true
+    plot_probabilistic: true
+    create_sensitivity_report: true

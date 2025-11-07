@@ -1,0 +1,182 @@
+{
+  "metadata": {
+    "source": "V4 Analysis",
+    "date": "2025-02-10",
+    "version": "4.0.0"
+  },
+  "values": {
+    "cea": {
+      "base_case": {
+        "ECT": {
+          "cost": "$14,770",
+          "qalys": "6.52",
+          "nmb": "$311,341"
+        },
+        "IN-EKA": {
+          "cost": "$19,979",
+          "qalys": "5.02",
+          "nmb": "$230,978"
+        },
+        "IV-KA": {
+          "cost": "$11,983",
+          "qalys": "5.49",
+          "nmb": "$262,705"
+        },
+        "KA-ECT": {
+          "cost": "$18,189",
+          "qalys": "7.01",
+          "nmb": "$332,339"
+        },
+        "PO-KA": {
+          "cost": "$7,998",
+          "qalys": "4.46",
+          "nmb": "$215,121"
+        },
+        "PO-PSI": {
+          "cost": "$25,056",
+          "qalys": "6.03",
+          "nmb": "$276,520"
+        },
+        "UC": {
+          "cost": "$5,033",
+          "qalys": "3.01",
+          "nmb": "$145,306"
+        },
+        "UC+AA": {
+          "cost": "$7,005",
+          "qalys": "3.21",
+          "nmb": "$153,384"
+        },
+        "UC+Li": {
+          "cost": "$6,072",
+          "qalys": "3.50",
+          "nmb": "$169,052"
+        },
+        "rTMS": {
+          "cost": "$9,930",
+          "qalys": "4.00",
+          "nmb": "$190,191"
+        }
+      },
+      "ceac_probabilities": {
+        "wtp_30000": {
+          "UC": "0.0%",
+          "ECT": "32.0%",
+          "KA-ECT": "54.7%",
+          "IV-KA": "4.6%",
+          "IN-EKA": "0.2%",
+          "PO-PSI": "8.4%",
+          "PO-KA": "0.1%",
+          "rTMS": "0.0%",
+          "UC+Li": "0.0%",
+          "UC+AA": "0.0%"
+        },
+        "wtp_45000": {
+          "UC": "0.0%",
+          "ECT": "31.2%",
+          "KA-ECT": "55.3%",
+          "IV-KA": "3.9%",
+          "IN-EKA": "0.4%",
+          "PO-PSI": "9.1%",
+          "PO-KA": "0.1%",
+          "rTMS": "0.0%",
+          "UC+Li": "0.0%",
+          "UC+AA": "0.0%"
+        },
+        "wtp_50000": {
+          "UC": "0.0%",
+          "ECT": "31.2%",
+          "KA-ECT": "55.2%",
+          "IV-KA": "3.8%",
+          "IN-EKA": "0.4%",
+          "PO-PSI": "9.3%",
+          "PO-KA": "0.1%",
+          "rTMS": "0.0%",
+          "UC+Li": "0.0%",
+          "UC+AA": "0.0%"
+        },
+        "wtp_75000": {
+          "UC": "0.0%",
+          "ECT": "29.8%",
+          "KA-ECT": "56.2%",
+          "IV-KA": "3.6%",
+          "IN-EKA": "0.3%",
+          "PO-PSI": "10.0%",
+          "PO-KA": "0.1%",
+          "rTMS": "0.0%",
+          "UC+Li": "0.0%",
+          "UC+AA": "0.0%"
+        },
+        "wtp_100000": {
+          "UC": "0.0%",
+          "ECT": "29.3%",
+          "KA-ECT": "56.7%",
+          "IV-KA": "3.2%",
+          "IN-EKA": "0.3%",
+          "PO-PSI": "10.4%",
+          "PO-KA": "0.1%",
+          "rTMS": "0.0%",
+          "UC+Li": "0.0%",
+          "UC+AA": "0.0%"
+        }
+      }
+    },
+    "voi": {
+      "evpi": {
+        "wtp_30000": "$11,736",
+        "wtp_45000": "$17,042",
+        "wtp_50000": "$18,828",
+        "wtp_75000": "$27,822",
+        "wtp_100000": "$36,863"
+      }
+    },
+    "dcea": {
+      "atkinson_index": 0.0393046765314372,
+      "ede_qalys": 4.636219953298775,
+      "strategies": {
+        "UC": {
+          "mean_qalys": "6.52"
+        },
+        "ECT": {
+          "mean_qalys": "5.02"
+        },
+        "KA-ECT": {
+          "mean_qalys": "5.49"
+        },
+        "IV-KA": {
+          "mean_qalys": "7.01"
+        },
+        "IN-EKA": {
+          "mean_qalys": "4.46"
+        },
+        "PO-PSI": {
+          "mean_qalys": "6.03"
+        },
+        "PO-KA": {
+          "mean_qalys": "3.01"
+        },
+        "rTMS": {
+          "mean_qalys": "3.21"
+        },
+        "UC+Li": {
+          "mean_qalys": "3.50"
+        },
+        "UC+AA": {
+          "mean_qalys": "4.00"
+        }
+      }
+    }
+  },
+  "therapy_abbreviations": {
+    "UC": "Usual Care",
+    "ECT": "Standard Electroconvulsive Therapy",
+    "KA-ECT": "Ketamine-Assisted ECT",
+    "IV-KA": "Intravenous Ketamine",
+    "IN-EKA": "Intranasal Esketamine",
+    "PO-PSI": "Oral Psilocybin-Assisted Therapy",
+    "PO-KA": "Oral Ketamine",
+    "rTMS": "Repetitive Transcranial Magnetic Stimulation",
+    "UC+Li": "Usual Care + Lithium Augmentation",
+    "UC+AA": "Usual Care + Atypical Antipsychotic"
+  }
+}

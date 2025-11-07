@@ -1,0 +1,27 @@
+# Snakemake pipeline
+rule all:
+    input:
+        "psa_results.csv",
+        "ceac.png",
+        "dsa_results.csv",
+        "tornado_plot.png"
+        # "forest_plot.png"  # Commented out due to missing input
+
+rule psa:
+    output: "psa_results.csv", "ceac.png", "ceac.csv"
+    shell: "python psa_cea_model.py"
+
+rule dsa:
+    input: "dsa_inputs.csv", "parameters_psa.csv"
+    output: "dsa_results.csv"
+    shell: "python dsa_run.py"
+
+rule tornado:
+    input: "dsa_results.csv"
+    output: "tornado_plot.png"
+    shell: "python tornado_plot.py"
+
+# rule forest:
+#     input: "forest_data_template.csv"
+#     output: "forest_plot.png"
+#     shell: "python forest_plot.py"

@@ -1,0 +1,44 @@
+# NMA Configuration
+# Priors and settings for Bayesian Network Meta-Analysis
+
+# Model settings
+n_draws: 2000
+n_tune: 1000
+n_chains: 4
+random_seed: 42
+
+# Priors
+priors:
+  # Overall mean effect (log odds)
+  mu:
+    dist: Normal
+    mu: 0.0
+    sigma: 2.0
+
+  # Heterogeneity (tau)
+  tau:
+    dist: HalfNormal
+    sigma: 0.5
+
+  # Treatment effects (relative to reference)
+  d:
+    dist: Normal
+    mu: 0.0
+    sigma: 1.0
+
+# Treatments included in NMA
+treatments:
+  - ECT          # Reference treatment
+  - IV_KA        # IV Ketamine
+  - IN_EKA       # Intranasal Esketamine
+  - PO_PSI       # Oral Psilocybin
+  - rTMS         # Repetitive TMS
+  - PHARM        # Pharmacological augmentation
+
+# Outcomes
+outcomes:
+  - response     # Primary: response rate
+  - remission    # Secondary: remission rate (if available)
+
+# Study-level covariates (if needed)
+covariates: []

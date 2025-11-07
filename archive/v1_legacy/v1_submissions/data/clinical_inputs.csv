@@ -1,0 +1,18 @@
+Parameter,AU_Value,NZ_Value,Notes
+"ECT Remission (non-psychotic TRD, acute)",0.60,0.60,"Beta(36,24)"
+ECT Relapse by 6m (no maintenance),0.50,0.50,~50% by 6m
+Maintenance ECT usage,0.10,0.05,"Beta(2,18)"
+Maintenance ECT relapse (annual),0.30,0.30,~31%/yr
+Ketamine IV Remission (4 wks),0.45,0.45,"Beta(27,33)"
+Esketamine Remission (4 wks),0.36,0.36,"Beta(18,32)"
+Ketamine relapse on maintenance (~4mo),0.267,0.267,SUSTAIN-like
+Ketamine relapse off maintenance (1y),0.60,0.60,Assumption
+Psilocybin Remission (1–2 sessions),0.40,0.40,"Updated with recent trials; Beta(20,30)"
+Psilocybin effect duration (median),6 months,6 months,3–12m range
+Utility – Depressed,0.57,0.57,Beta approx
+Utility – Remission,0.81,0.81,Beta approx
+ECT disutility (acute month),-0.10,-0.10,Short-term
+Ketamine Adherence Rate,0.80,0.80,"Beta(16,4)"
+Esketamine Adherence Rate,0.75,0.75,"Beta(15,5)"
+Psilocybin Adherence Rate,0.85,0.85,"Beta(17,3)"
+ECT Adherence Rate,0.90,0.90,"Beta(18,2)"

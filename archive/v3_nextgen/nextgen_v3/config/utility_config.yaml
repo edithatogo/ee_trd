@@ -1,0 +1,131 @@
+# TRD Utility Values Configuration
+# Evidence-based utilities for Treatment-Resistant Depression model
+
+# Base state utilities (EQ-5D values)
+states:
+  Depressed:
+    value: 0.25
+    source: "TRD-specific baseline; lower than general depression (0.4-0.5)"
+    evidence: "Based on severe TRD populations with chronic symptoms"
+
+  PartialResponse:
+    value: 0.45
+    source: "Partial response utility"
+    evidence: "Midway between depressed and remission states"
+
+  Remission_0_3m:
+    value: 0.72
+    source: "Early remission (6 months sustained)"
+    evidence: "Based on depression remission utilities with TRD adjustment"
+
+  Remission_4_6m:
+    value: 0.75
+    source: "Sustained remission (6-12 months)"
+    evidence: "Slight improvement with time in remission"
+
+  Remission_7_12m:
+    value: 0.78
+    source: "Longer remission (12-18 months)"
+    evidence: "Further improvement with sustained remission"
+
+  Remission_12m_plus:
+    value: 0.80
+    source: "Durable remission (>18 months)"
+    evidence: "Peak utility for long-term remission"
+
+  Relapse:
+    value: 0.20
+    source: "Relapse utility"
+    evidence: "Worse than baseline TRD due to treatment failure"
+
+  Post_AE:
+    value: 0.15
+    source: "Post adverse event disutility"
+    evidence: "Severe disutility following adverse events"
+
+  Death:
+    value: 0.00
+    source: "Death utility"
+    evidence: "Standard value"
+
+# Treatment-specific acute disutilities (first month)
+acute_disutilities:
+  ECT:
+    value: -0.15
+    duration: 1
+    source: "ECT acute disutility"
+    evidence: "Cognitive impairment, anesthesia, hospitalization"
+
+  IV_KA:
+    value: -0.10
+    duration: 1
+    source: "IV ketamine disutility"
+    evidence: "Infusions, monitoring, side effects"
+
+  IN_EKA:
+    value: -0.08
+    duration: 1
+    source: "Esketamine nasal disutility"
+    evidence: "Administration, monitoring, side effects"
+
+  PO_KA:
+    value: -0.05
+    duration: 1
+    source: "Oral ketamine disutility"
+    evidence: "Side effects, monitoring"
+
+  PO_PSI:
+    value: -0.12
+    duration: 1
+    source: "Psilocybin disutility"
+    evidence: "Psychological preparation, integration therapy"
+
+  rTMS:
+    value: -0.03
+    duration: 1
+    source: "rTMS disutility"
+    evidence: "Minimal acute effects"
+
+  PHARM:
+    value: -0.02
+    duration: 1
+    source: "Pharmacological disutility"
+    evidence: "Side effects from augmentation"
+
+# ECT cognitive disutility (extends beyond acute month)
+ect_cognitive:
+  acute_month:
+    value: -0.20
+    source: "ECT acute cognitive disutility"
+    evidence: "Severe cognitive impairment in first month"
+
+  months_2_3:
+    value: -0.10
+    source: "ECT persistent cognitive disutility"
+    evidence: "Moderate cognitive effects weeks 4-12"
+
+  months_4_6:
+    value: -0.05
+    source: "ECT mild cognitive disutility"
+    evidence: "Mild persistent effects months 4-6"
+
+  long_term:
+    value: 0.00
+    source: "ECT long-term cognitive recovery"
+    evidence: "No long-term cognitive disutility assumed"
+
+# Societal perspective notes
+societal_notes:
+  - "Transportation costs based on round-trip visits"
+  - "Time costs based on lost productivity during visits"
+  - "Friction cost method used to avoid double counting with utilities"
+  - "Productivity losses only during acute treatment phase"
+  - "Caregiver costs not included (focus on patient costs)"
+
+# References
+references:
+  - "Smit et al. (2020) - TRD utility values"
+  - "McCrone et al. (2008) - Depression utilities"
+  - "ECT cognitive effects: Sackeim et al. (2007)"
+  - "Ketamine utilities: Wilkinson et al. (2018)"
+  - "Psychedelic therapy: Gukasyan et al. (2022)"

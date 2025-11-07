@@ -1,0 +1,33 @@
+# ECT-Focused Analysis Defaults (V4)
+# CRITICAL: Designed for ECT-reference PSA data only
+
+psa:
+  iterations: 2000  # Matches actual PSA file
+  seed: 42
+  confidence_level: 0.95
+
+wtp_thresholds:
+  - 30000
+  - 45000
+  - 50000
+  - 75000
+  - 100000
+
+analysis_modules:
+  cea: true
+  ceac: true
+  ceaf: true
+
+plotting:
+  dpi: 300
+  figure_size: [10, 8]
+  ci_level: 0.95
+
+output:
+  results_directory: "results/v4_ect_focused"
+  figures_directory: "figures/v4_ect_focused"
+
+metadata:
+  version: "4.0"
+  variant: "ECT-Focused"
+  created: "2025-10-19"

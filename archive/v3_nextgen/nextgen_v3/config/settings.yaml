@@ -1,0 +1,67 @@
+time_horizon_years: 10
+cycle_length_months: 1
+discount_costs:
+  AU: 0.05
+  NZ: 0.035
+discount_qalys:
+  AU: 0.05
+  NZ: 0.035
+wtp_grid: [0, 12500, 25000, 37500, 50000, 62500, 75000]
+ceaf_max_wtp: 75000
+pricing_max: 50000
+currency_year: 2024
+jurisdictions: [AU, NZ]
+perspectives: [health_system, societal]
+arms: [ECT_std, ECT_ket_anaesthetic, Ketamine_IV, Esketamine, Psilocybin, Oral_ketamine]
+therapy_labels:
+  ECT_std: "ECT"
+  ECT_ket_anaesthetic: "KA-ECT"
+  Ketamine_IV: "IV-KA"
+  Esketamine: "IN-EKA"
+  Psilocybin: "PO psilocybin"
+  Oral_ketamine: "PO-KA"
+therapy_colors:
+  ECT_std: "#1f77b4"
+  ECT_ket_anaesthetic: "#ff7f0e"
+  Ketamine_IV: "#2ca02c"
+  Esketamine: "#d62728"
+  Psilocybin: "#9467bd"
+  Oral_ketamine: "#8c564b"
+data_schemas:
+  clinical_induction: nextgen_v3/data/clinical_inputs_v3.csv
+  durability_relapse: nextgen_v3/data/clinical_inputs_v3.csv  # stub
+  cognition_ae_seizure: nextgen_v3/data/clinical_inputs_v3.csv  # stub
+  sessions: nextgen_v3/data/clinical_inputs_v3.csv  # stub
+  operations_per_session: nextgen_v3/data/clinical_inputs_v3.csv  # stub
+  cost_inputs_au: data/cost_inputs_au.csv
+  cost_inputs_nz: data/cost_inputs_nz.csv
+  utilities: nextgen_v3/data/utilities_v3.csv
+  parameters_psa: data/parameters_psa.csv
+  mcda_weights: data/clinical_inputs.csv  # stub
+  mcda_value_functions: data/clinical_inputs.csv  # stub
+  dcea_groups: data/clinical_inputs.csv  # stub
+  dcea_weights: data/clinical_inputs.csv  # stub
+  provenance_sources: data/clinical_inputs.csv  # stub
+  grade_certainty: data/clinical_inputs.csv  # stub
+  opportunity_cost_shares: data/clinical_inputs.csv  # stub
+  ecea_oop_inputs: data/clinical_inputs.csv  # stub
+  income_quintiles: data/clinical_inputs.csv  # stub
+sourcing_outputs:
+  # Assuming sourcing scripts output to data_schemas/
+  harvest_costs: ../data_schemas/
+  harvest_utilities: ../data_schemas/
+  harvest_equity: ../data_schemas/
+  normalize_provenance: ../data_schemas/
+correlated_psa: true
+grade_penalty: true
+opportunity_cost:
+  use_k: true
+  k_values:
+    AU: [28000, 42000, 56000]   # base ±50%
+    NZ: [20000, 30000, 40000]
+  apply_in: [CEA, DCEA]         # where to apply health displaced
+structural_scenarios:
+  include_response_nonremit: [true, false]
+  cycle_length_months: [0.5, 1]      # 2 weeks vs 1 month
+  semi_markov_memory: [false, true]
+  switching_logic: [standard, aggressive, conservative]

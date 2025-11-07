@@ -1,0 +1,13 @@
+draw,strategy,cost,effect,perspective
+1,Usual care,1000,2.0,health_system
+1,Therapy A,1150,2.1,health_system
+1,Therapy B,1300,2.05,health_system
+2,Usual care,1010,1.95,health_system
+2,Therapy A,1160,2.04,health_system
+2,Therapy B,1315,2.0,health_system
+1,Usual care,980,2.1,societal
+1,Therapy A,1100,2.25,societal
+1,Therapy B,1250,2.15,societal
+2,Usual care,990,2.0,societal
+2,Therapy A,1120,2.18,societal
+2,Therapy B,1265,2.05,societal

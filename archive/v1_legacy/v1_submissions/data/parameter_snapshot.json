@@ -1,0 +1,299 @@
+{
+  "timestamp_AEST": "2025-09-12T21:51:25",
+  "clinical_inputs": [
+    {
+      "Parameter": "ECT Remission (non-psychotic TRD, acute)",
+      "AU_Value": "0.60",
+      "NZ_Value": "0.60",
+      "Notes": "Beta(36,24)"
+    },
+    {
+      "Parameter": "ECT Relapse by 6m (no maintenance)",
+      "AU_Value": "0.50",
+      "NZ_Value": "0.50",
+      "Notes": "~50% by 6m"
+    },
+    {
+      "Parameter": "Maintenance ECT usage",
+      "AU_Value": "0.10",
+      "NZ_Value": "0.05",
+      "Notes": "Beta(2,18)"
+    },
+    {
+      "Parameter": "Maintenance ECT relapse (annual)",
+      "AU_Value": "0.30",
+      "NZ_Value": "0.30",
+      "Notes": "~31%/yr"
+    },
+    {
+      "Parameter": "Ketamine IV Remission (4 wks)",
+      "AU_Value": "0.45",
+      "NZ_Value": "0.45",
+      "Notes": "Beta(27,33)"
+    },
+    {
+      "Parameter": "Esketamine Remission (4 wks)",
+      "AU_Value": "0.36",
+      "NZ_Value": "0.36",
+      "Notes": "Beta(18,32)"
+    },
+    {
+      "Parameter": "Ketamine relapse on maintenance (~4mo)",
+      "AU_Value": "0.267",
+      "NZ_Value": "0.267",
+      "Notes": "SUSTAIN-like"
+    },
+    {
+      "Parameter": "Ketamine relapse off maintenance (1y)",
+      "AU_Value": "0.60",
+      "NZ_Value": "0.60",
+      "Notes": "Assumption"
+    },
+    {
+      "Parameter": "Psilocybin Remission (1\u20132 sessions)",
+      "AU_Value": "0.30",
+      "NZ_Value": "0.30",
+      "Notes": "Base; wide CI"
+    },
+    {
+      "Parameter": "Psilocybin effect duration (median)",
+      "AU_Value": "6 months",
+      "NZ_Value": "6 months",
+      "Notes": "3\u201312m range"
+    },
+    {
+      "Parameter": "Utility \u2013 Depressed",
+      "AU_Value": "0.57",
+      "NZ_Value": "0.57",
+      "Notes": "Beta approx"
+    },
+    {
+      "Parameter": "Utility \u2013 Remission",
+      "AU_Value": "0.81",
+      "NZ_Value": "0.81",
+      "Notes": "Beta approx"
+    },
+    {
+      "Parameter": "ECT disutility (acute month)",
+      "AU_Value": "-0.10",
+      "NZ_Value": "-0.10",
+      "Notes": "Short-term"
+    }
+  ],
+  "cost_inputs_au": [
+    {
+      "Item": "ECT psychiatrist fee (MBS 14224)",
+      "AUD_Value_2024": 162.55,
+      "Unit": "per session"
+    },
+    {
+      "Item": "ECT anesthesia fee (MBS 20104)",
+      "AUD_Value_2024": 92.4,
+      "Unit": "per session"
+    },
+    {
+      "Item": "ECT total session cost (public)",
+      "AUD_Value_2024": 1000.0,
+      "Unit": "per session"
+    },
+    {
+      "Item": "ECT course sessions",
+      "AUD_Value_2024": 8.0,
+      "Unit": "count"
+    },
+    {
+      "Item": "Ketamine session (IV) \u2013 drug",
+      "AUD_Value_2024": 5.0,
+      "Unit": "per session"
+    },
+    {
+      "Item": "Ketamine session (IV) \u2013 admin/monitoring",
+      "AUD_Value_2024": 250.0,
+      "Unit": "per session"
+    },
+    {
+      "Item": "Ketamine total session (IV)",
+      "AUD_Value_2024": 300.0,
+      "Unit": "per session"
+    },
+    {
+      "Item": "Esketamine session \u2013 assumed total",
+      "AUD_Value_2024": 800.0,
+      "Unit": "per session"
+    },
+    {
+      "Item": "Psilocybin program (2-dose + therapy)",
+      "AUD_Value_2024": 15000.0,
+      "Unit": "per patient"
+    },
+    {
+      "Item": "Psychiatrist follow-up (annual)",
+      "AUD_Value_2024": 1500.0,
+      "Unit": "per year"
+    },
+    {
+      "Item": "Antidepressants (annual)",
+      "AUD_Value_2024": 360.0,
+      "Unit": "per year"
+    },
+    {
+      "Item": "Hospital psych day (context)",
+      "AUD_Value_2024": 1900.0,
+      "Unit": "per day"
+    }
+  ],
+  "cost_inputs_nz": [
+    {
+      "Item": "ECT session (public hospital)",
+      "NZD_Value_2024": 1000,
+      "Unit": "per session"
+    },
+    {
+      "Item": "ECT course sessions",
+      "NZD_Value_2024": 8,
+      "Unit": "count"
+    },
+    {
+      "Item": "Ketamine session (IV) \u2013 total",
+      "NZD_Value_2024": 350,
+      "Unit": "per session"
+    },
+    {
+      "Item": "Esketamine session \u2013 assumed total",
+      "NZD_Value_2024": 500,
+      "Unit": "per session"
+    },
+    {
+      "Item": "Psilocybin program (2-dose + therapy)",
+      "NZD_Value_2024": 15000,
+      "Unit": "per patient"
+    },
+    {
+      "Item": "Psychiatrist follow-up (annual)",
+      "NZD_Value_2024": 1000,
+      "Unit": "per year"
+    },
+    {
+      "Item": "Primary care visit (avg)",
+      "NZD_Value_2024": 100,
+      "Unit": "per visit"
+    },
+    {
+      "Item": "Antidepressants (annual)",
+      "NZD_Value_2024": 60,
+      "Unit": "per year"
+    },
+    {
+      "Item": "Hospital psych day (context)",
+      "NZD_Value_2024": 1100,
+      "Unit": "per day"
+    }
+  ],
+  "parameters_psa": [
+    {
+      "Parameter": "Discount rate (AU)",
+      "BaseValue": 0.05,
+      "Distribution": "Fixed"
+    },
+    {
+      "Parameter": "Discount rate (NZ)",
+      "BaseValue": 0.035,
+      "Distribution": "Fixed"
+    },
+    {
+      "Parameter": "WTP AU (primary)",
+      "BaseValue": 50000.0,
+      "Distribution": "Fixed"
+    },
+    {
+      "Parameter": "WTP NZ (primary)",
+      "BaseValue": 45000.0,
+      "Distribution": "Fixed"
+    },
+    {
+      "Parameter": "ECT remission",
+      "BaseValue": 0.6,
+      "Distribution": "Beta(36,24)"
+    },
+    {
+      "Parameter": "ECT relapse 6m (no maint)",
+      "BaseValue": 0.5,
+      "Distribution": "Beta(5,5)"
+    },
+    {
+      "Parameter": "M-ECT use",
+      "BaseValue": 0.1,
+      "Distribution": "Beta(2,18)"
+    },
+    {
+      "Parameter": "M-ECT relapse (annual)",
+      "BaseValue": 0.3,
+      "Distribution": "Beta(3,7)"
+    },
+    {
+      "Parameter": "Ketamine remission (4w)",
+      "BaseValue": 0.45,
+      "Distribution": "Beta(27,33)"
+    },
+    {
+      "Parameter": "Esketamine remission (4w)",
+      "BaseValue": 0.36,
+      "Distribution": "Beta(18,32)"
+    },
+    {
+      "Parameter": "Psilocybin remission",
+      "BaseValue": 0.3,
+      "Distribution": "Beta(3,7)"
+    },
+    {
+      "Parameter": "Utility depressed",
+      "BaseValue": 0.57,
+      "Distribution": "Beta(57,43)"
+    },
+    {
+      "Parameter": "Utility remission",
+      "BaseValue": 0.81,
+      "Distribution": "Beta(81,19)"
+    },
+    {
+      "Parameter": "Cost ECT session AU",
+      "BaseValue": 1000.0,
+      "Distribution": "Gamma(sd=200)"
+    },
+    {
+      "Parameter": "Cost ketamine session AU",
+      "BaseValue": 300.0,
+      "Distribution": "Gamma(sd=60)"
+    },
+    {
+      "Parameter": "Cost esketamine session AU",
+      "BaseValue": 800.0,
+      "Distribution": "Gamma(sd=160)"
+    },
+    {
+      "Parameter": "Cost psilocybin program AU",
+      "BaseValue": 15000.0,
+      "Distribution": "Gamma(sd=3000)"
+    },
+    {
+      "Parameter": "Cost ECT session NZ",
+      "BaseValue": 1000.0,
+      "Distribution": "Gamma(sd=200)"
+    },
+    {
+      "Parameter": "Cost ketamine session NZ",
+      "BaseValue": 350.0,
+      "Distribution": "Gamma(sd=70)"
+    },
+    {
+      "Parameter": "Cost esketamine session NZ",
+      "BaseValue": 500.0,
+      "Distribution": "Gamma(sd=100)"
+    },
+    {
+      "Parameter": "Cost psilocybin program NZ",
+      "BaseValue": 15000.0,
+      "Distribution": "Gamma(sd=3000)"
+    }
+  ]
+}

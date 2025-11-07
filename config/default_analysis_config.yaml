@@ -1,0 +1,52 @@
+# Health Economic Evaluation Configuration
+
+# Analysis parameters
+analysis:
+  time_horizon: 10  # Years
+  discount_rate_costs: 0.035  # 3.5% annual discount rate for costs
+  discount_rate_effects: 0.035  # 3.5% annual discount rate for effects
+  wtp_threshold: 50000  # Willingness-to-pay threshold per QALY ($AUD)
+  n_simulations: 1000  # Number of Monte Carlo simulations for PSA
+  psa_samples: 1000  # Number of PSA samples
+  dsa_parameters:  # Parameters for deterministic sensitivity analysis
+    - "treatment_effect_modifier"
+    - "unit_cost_treatment"
+    - "utility_gain_remition"
+
+# Treatment strategies
+strategies:
+  ECT:
+    name: "Electroconvulsive Therapy"
+    abbreviation: "ECT"
+    description: "Standard ECT treatment protocol"
+    
+  IV_KA:
+    name: "Intravenous Ketamine"
+    abbreviation: "IV-KA"
+    description: "IV ketamine administration"
+    
+  PO_KA:
+    name: "Oral Ketamine"
+    abbreviation: "PO-KA"
+    description: "PO ketamine administration"
+
+# Model parameters
+model:
+  cycle_length: 0.25  # 3-month cycles in years
+  max_age: 100  # Maximum age in model
+  min_age: 18   # Minimum age in model
+  perspective: "healthcare"  # healthcare, societal
+  jurisdiction: "AU"  # AU, NZ
+
+# Economic parameters
+economics:
+  base_year: 2024
+  inflation_rate: 0.025  # 2.5% annual inflation
+  currency: "AUD"  # AUD, NZD
+
+# Output parameters
+output:
+  save_results: true
+  results_directory: "results/"
+  figures_directory: "figures/"
+  export_formats: ["csv", "pdf", "png"]  # Export formats for results

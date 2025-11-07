@@ -1,0 +1,59 @@
+{
+  "version": "V6",
+  "date": "2025-02-10",
+  "source_version": "V5",
+  "base_model": "V4",
+  "changes": {
+    "protocol": {
+      "file": "protocol_v4_20251010.md",
+      "status": "NEW",
+      "changes": [
+        "Added semi-Markov model structure with time-dependent transitions",
+        "Updated to 10 therapy strategies (V4 abbreviations)",
+        "Added DCEA with Atkinson index and EDE-QALYs",
+        "Added VOI analysis (EVPI, EVPPI, EVSI)",
+        "Added VBP analysis for threshold pricing",
+        "Added BIA for healthcare budget impact",
+        "Added tunnel states (0-3m, 4-6m, 7-12m, >12m)",
+        "Added Indigenous population analysis framework"
+      ]
+    },
+    "manuscript": {
+      "file": "manuscript_v6_20251010.md",
+      "status": "UPDATED",
+      "source": "manuscript_v5_20251002.md",
+      "changes": [
+        "Updated model description: semi-Markov with time-dependent transitions",
+        "Updated therapy count: three \u2192 ten strategies",
+        "Updated therapy abbreviations: IV-KA, IN-EKA, PO-PSI",
+        "Added V4 analysis methods: DCEA, VOI, VBP, BIA",
+        "Maintained manuscript structure (surgical updates only)",
+        "Added +446 characters"
+      ],
+      "character_change": "+446"
+    },
+    "supplementary": {
+      "file": "manuscript/supplementary_v6_20251010.md",
+      "status": "NEW",
+      "content": [
+        "7 existing V4 tables (S1-S7)",
+        "13 additional tables referenced (S8-S20)",
+        "20 figures (S1-S20)",
+        "5 methods appendices",
+        "3 data files",
+        "Complete mathematical equations",
+        "Parameter sources documentation",
+        "Model validation documentation"
+      ],
+      "total_items": 48
+    }
+  },
+  "summary": {
+    "files_created": 2,
+    "files_updated": 1,
+    "total_changes": 19,
+    "v4_values_integrated": true,
+    "validation_status": "COMPLETE",
+    "ready_for_publication": true
+  }
+}
