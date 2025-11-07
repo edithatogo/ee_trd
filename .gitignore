@@ -70,3 +70,6 @@ config/local.*
 
 # Jupyter checkpoints
 **/.ipynb_checkpoints
+
+# Environment specific files
+requirements_frozen.txt

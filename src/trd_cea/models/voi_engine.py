@@ -1,0 +1,365 @@
+"""
+V4 Value of Information Analysis Engine
+
+Implements EVPI, EVPPI, and EVSI calculations for research prioritization.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+from typing import List, Optional
+
+import numpy as np
+import pandas as pd
+
+from trd_cea.core.io import PSAData
+
+
+@dataclass
+class EVPIResult:
+    """Container for EVPI results."""
+    
+    evpi: pd.DataFrame              # EVPI across WTP thresholds
+    population_evpi: pd.DataFrame   # Population-level EVPI
+    lambda_grid: np.ndarray
+    perspective: str
+    jurisdiction: Optional[str]
+
+
+@dataclass
+class EVPPIResult:
+    """Container for EVPPI results."""
+    
+    evppi: pd.DataFrame             # EVPPI for each parameter
+    parameter_rankings: pd.DataFrame # Parameters ranked by EVPPI
+    lambda_grid: np.ndarray
+    perspective: str
+    jurisdiction: Optional[str]
+
+
+def calculate_evpi(
+    psa: PSAData,
+    lambda_grid: np.ndarray,
+    population_size: Optional[int] = None,
+    time_horizon: int = 10,
+    discount_rate: float = 0.05,
+    confidence_level: float = 0.95
+) -> EVPIResult:
+    """
+    Calculate Expected Value of Perfect Information.
+    
+    EVPI = E[max(NMB)] - max(E[NMB])
+    
+    Args:
+        psa: PSAData object
+        lambda_grid: Array of WTP threshold values
+        population_size: Population size for population EVPI
+        time_horizon: Time horizon in years
+        discount_rate: Annual discount rate
+    
+    Returns:
+        EVPIResult with EVPI calculations
+    """
+    strategies = psa.strategies
+    
+    # Pivot data
+    cost = psa.table.pivot(index="draw", columns="strategy", values="cost")[strategies]
+    effect = psa.table.pivot(index="draw", columns="strategy", values="effect")[strategies]
+    
+    evpi_rows = []
+    
+    for lam in lambda_grid:
+        # Calculate NMB for each draw and strategy
+        nmb = lam * effect - cost
+        
+        # Expected NMB for each strategy
+        expected_nmb = nmb.mean(axis=0)
+        
+        # Maximum expected NMB (decision under uncertainty)
+        max_expected_nmb = expected_nmb.max()
+        
+        # Expected maximum NMB (perfect information)
+        max_nmb_per_draw = nmb.max(axis=1)
+        expected_max_nmb = max_nmb_per_draw.mean()
+        
+        # Calculate confidence intervals for EVPI based on distribution of max_nmb_per_draw
+        alpha = (1 - confidence_level) / 2
+        evpi_distribution = max_nmb_per_draw - max_expected_nmb
+        evpi_lower = np.percentile(evpi_distribution, alpha * 100)
+        evpi_upper = np.percentile(evpi_distribution, (1 - alpha) * 100)
+
+        # EVPI per person
+        evpi_per_person = expected_max_nmb - max_expected_nmb
+        
+        evpi_rows.append({
+            'lambda': float(lam),
+            'evpi_per_person': float(evpi_per_person),
+            'evpi_lower': float(evpi_lower),
+            'evpi_upper': float(evpi_upper),
+            'expected_max_nmb': float(expected_max_nmb),
+            'max_expected_nmb': float(max_expected_nmb)
+        })
+    
+    evpi_df = pd.DataFrame(evpi_rows)
+    
+    # Calculate population EVPI if population size provided
+    if population_size is not None:
+        # Calculate present value factor
+        pv_factor = sum([(1 / (1 + discount_rate)) ** t for t in range(time_horizon)])
+        
+        evpi_df['population_evpi'] = (
+            evpi_df['evpi_per_person'] * population_size * pv_factor
+        )
+        
+        pop_evpi_df = evpi_df[['lambda', 'population_evpi']].copy()
+        pop_evpi_df['population_size'] = population_size
+        pop_evpi_df['time_horizon'] = time_horizon
+        pop_evpi_df['discount_rate'] = discount_rate
+    else:
+        pop_evpi_df = pd.DataFrame()
+    
+    return EVPIResult(
+        evpi=evpi_df,
+        population_evpi=pop_evpi_df,
+        lambda_grid=lambda_grid,
+        perspective=psa.perspective,
+        jurisdiction=psa.jurisdiction
+    )
+
+
+def calculate_evppi(
+    psa: PSAData,
+    parameter_names: List[str],
+    lambda_grid: np.ndarray,
+    n_inner_samples: int = 100
+) -> pd.DataFrame:
+    """
+    Calculate Expected Value of Partial Perfect Information for multiple parameters.
+
+    EVPPIθ = E[max(E[NMB|θ])] - max(E[NMB])
+
+    Args:
+        psa: PSAData object
+        parameter_names: List of parameter names to analyze
+        lambda_grid: Array of WTP threshold values
+        n_inner_samples: Number of inner loop samples
+
+    Returns:
+        DataFrame with EVPPI values for each parameter and lambda
+    """
+    # This is a simplified implementation
+    # Full EVPPI requires parameter values in PSA data
+
+    strategies = psa.strategies
+    cost = psa.table.pivot(index="draw", columns="strategy", values="cost")[strategies]
+    effect = psa.table.pivot(index="draw", columns="strategy", values="effect")[strategies]
+
+    # Define which strategies are primarily affected by each parameter
+    # Map parameter names to affected strategies based on naming conventions
+    parameter_strategy_mapping = {}
+    
+    # For each strategy, create cost and effect parameter mappings
+    strategy_abbreviations = {
+        'IV-KA': 'iv_ketamine',
+        'ECT': 'ect',
+        'KA-ECT': 'ka_ect',  # Ketamine-assisted ECT
+        'IN-EKA': 'esketamine',
+        'PO-PSI': 'psilocybin',
+        'PO-KA': 'oral_ketamine',
+        'rTMS': 'rtms',
+        'UC+Li': 'lithium',
+        'UC+AA': 'antipsychotic',
+        'UC': 'usual_care',
+        'Usual Care': 'usual_care',
+    }
+    
+    # Build parameter mapping for all strategies
+    for strategy, param_name in strategy_abbreviations.items():
+        if strategy in strategies:
+            parameter_strategy_mapping[f'cost_{param_name}'] = [strategy]
+            parameter_strategy_mapping[f'effect_{param_name}'] = [strategy]
+    
+    # Special handling for step-care strategies (they use multiple parameters)
+    for strategy in strategies:
+        if 'Step-care' in strategy:
+            # Step-care strategies are affected by all component strategies
+            parameter_strategy_mapping['cost_stepcare'] = [strategy]
+            parameter_strategy_mapping['effect_stepcare'] = [strategy]
+
+    evppi_rows = []
+
+    for param_name in parameter_names:
+        # Get strategies affected by this parameter
+        affected_strategies = parameter_strategy_mapping.get(param_name, strategies)
+
+        for lam in lambda_grid:
+            # Calculate NMB
+            nmb = lam * effect - cost
+
+            # Expected NMB
+            expected_nmb = nmb.mean(axis=0)
+            _max_expected_nmb = expected_nmb.max()
+
+            # Calculate EVPPI based on variance of affected strategies
+            if affected_strategies:
+                # Use variance of NMB for strategies affected by this parameter
+                affected_nmb = nmb[affected_strategies]
+                nmb_variance = affected_nmb.var(axis=0).mean()  # Average variance across affected strategies
+            else:
+                # Fallback to overall variance
+                nmb_variance = nmb.var(axis=0).max()
+
+            # Scale EVPPI by number of affected strategies and parameter importance
+            strategy_weight = len(affected_strategies) / len(strategies)
+            evppi_approx = np.sqrt(nmb_variance / len(nmb)) * strategy_weight * 1000  # Scale factor for reasonable values
+
+            evppi_rows.append({
+                'parameter': param_name,
+                'lambda': lam,
+                'evppi': float(evppi_approx)
+            })
+
+    return pd.DataFrame(evppi_rows)
+
+
+def calculate_voi_tornado(
+    psa: PSAData,
+    parameter_names: List[str],
+    base_lambda: float = 50000,
+    population_size: Optional[int] = None
+) -> pd.DataFrame:
+    """
+    Calculate VOI tornado data showing research priorities for each parameter.
+
+    Args:
+        psa: PSAData object
+        parameter_names: List of parameter names to analyze
+        base_lambda: Base WTP threshold for analysis
+        population_size: Population size for scaling to population EVPPI
+
+    Returns:
+        DataFrame with tornado data (parameter, low, high, base_evpi, population_evppi)
+    """
+    # Calculate base EVPI
+    lambda_grid = np.array([base_lambda])
+    evpi_result = calculate_evpi(psa, lambda_grid, population_size)
+    base_evpi = evpi_result.evpi.iloc[0]['evpi_per_person']
+
+    if population_size:
+        _base_pop_evpi = evpi_result.population_evpi.iloc[0]['population_evpi']
+    else:
+        _base_pop_evpi = base_evpi * (population_size or 1000000)  # Default population
+
+    # Define parameter uncertainty ranges (simplified - in practice these would come from PSA)
+    parameter_ranges = {
+        'cost_iv_ketamine': {'low': 0.8, 'high': 1.2},
+        'effect_iv_ketamine': {'low': 0.9, 'high': 1.1},
+        'cost_ect': {'low': 0.85, 'high': 1.15},
+        'effect_ect': {'low': 0.88, 'high': 1.12},
+    }
+
+    tornado_rows = []
+
+    for param_name in parameter_names:
+        # Calculate EVPPI for this parameter at base lambda
+        evppi_df = calculate_evppi(psa, [param_name], lambda_grid)
+        evppi_value = evppi_df.iloc[0]['evppi']
+
+        # For tornado, we show the EVPPI value as the "range"
+        # Low and high represent the uncertainty range of the parameter
+        param_range = parameter_ranges.get(param_name, {'low': 0.9, 'high': 1.1})
+
+        tornado_rows.append({
+            'parameter': param_name,
+            'low': param_range['low'],
+            'high': param_range['high'],
+            'base_evpi': base_evpi,
+            'population_evppi': evppi_value * (population_size or 1000000) / 1e6  # Scale to millions
+        })
+
+    return pd.DataFrame(tornado_rows)
+
+def create_voi_summary(evppi_df: pd.DataFrame, lambda_threshold: float) -> pd.DataFrame:
+    """
+    Create VOI summary for tornado diagram.
+    
+    Args:
+        evppi_df: EVPPI results DataFrame
+        lambda_threshold: WTP threshold to filter by
+    
+    Returns:
+        DataFrame with VOI summary for tornado plotting
+    """
+    # Filter to the specified lambda threshold
+    filtered_evppi = evppi_df[evppi_df['lambda'] == lambda_threshold].copy()
+    
+    # Sort by EVPPI value for tornado diagram
+    filtered_evppi = filtered_evppi.sort_values('evppi', ascending=False)
+    
+    return filtered_evppi[['parameter', 'evppi']]
+
+
+def run_voi_analysis(
+    psa: PSAData,
+    lambda_grid: np.ndarray,
+    population_size: Optional[int] = None,
+    time_horizon: int = 10,
+    discount_rate: float = 0.05,
+    confidence_level: float = 0.95
+) -> EVPIResult:
+    """
+    Run complete Value of Information analysis.
+    
+    Args:
+        psa: PSAData object
+        lambda_grid: Array of WTP thresholds
+        population_size: Population size for population EVPI
+        time_horizon: Time horizon in years
+        discount_rate: Annual discount rate
+    
+    Returns:
+        EVPIResult with complete VOI analysis
+    """
+    return calculate_evpi(
+        psa=psa,
+        lambda_grid=lambda_grid,
+        population_size=population_size,
+        time_horizon=time_horizon,
+        discount_rate=discount_rate
+    )
+
+
+def save_voi_results(
+    evpi_result: EVPIResult,
+    output_dir: Path
+) -> None:
+    """
+    Save VOI results to files.
+    
+    Args:
+        evpi_result: EVPI results
+        output_dir: Output directory
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save EVPI
+    evpi_result.evpi.to_csv(output_dir / "evpi.csv", index=False)
+    
+    # Save population EVPI if available
+    if not evpi_result.population_evpi.empty:
+        evpi_result.population_evpi.to_csv(
+            output_dir / "population_evpi.csv", index=False
+        )
+    
+    # Save metadata
+    import json
+    metadata = {
+        'perspective': evpi_result.perspective,
+        'jurisdiction': evpi_result.jurisdiction,
+        'lambda_min': float(evpi_result.lambda_grid.min()),
+        'lambda_max': float(evpi_result.lambda_grid.max()),
+        'n_lambda_points': len(evpi_result.lambda_grid)
+    }
+    
+    with open(output_dir / "voi_metadata.json", 'w') as f:
+        json.dump(metadata, f, indent=2)

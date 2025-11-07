@@ -18,74 +18,114 @@ The TRD CEA Toolkit provides:
 ## Installation
 
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# Clone the repository
+git clone https://github.com/your-username/trd-cea-toolkit.git
+cd trd-cea-toolkit
 
-# Install dependencies
+# Create conda environment (recommended)
+conda env create -f environment.yml
+conda activate trd-cea
+
+# Or create environment manually
+conda create -n trd-cea python=3.10
+conda activate trd-cea
 pip install -r requirements.txt
-# Or install as package
-pip install .
+
+# Install as package in development mode
+pip install -e .
 ```
 
 ## Usage
 
-### Running Analyses
+### Quick Start with Jupyter Notebooks
 
-Basic CEA analysis:
+The easiest way to get started is using the example notebooks in the `analysis/` directory:
+
+```bash
+# Activate environment
+conda activate trd-cea
+
+# Launch Jupyter Lab
+jupyter lab
+```
+
+Then navigate to the example notebooks in `analysis/cea/`, `analysis/dcea/`, etc.
+
+### Command Line Interface
+
+The toolkit includes a command-line interface:
+
+```bash
+# Run CEA analysis
+trd-cea-analyze cea --config config/analysis_config.yaml
+
+# Run Budget Impact Analysis
+trd-cea-analyze bia --config config/bia_config.yaml
+
+# Run Value of Information analysis
+trd-cea-analyze voi --config config/voi_config.yaml --type evpi
+```
+
+### Programmatic Usage
+
 ```python
-from scripts.models.cea_engine import CEAEngine
+from src.trd_cea.analysis import run_analysis_pipeline
 
-cea = CEAEngine()
-results = cea.run_analysis(
-    strategies=['ECT', 'IV-KA', 'PO-KA'],
-    costs=[5000, 7500, 6000], 
-    effects=[0.6, 0.8, 0.7],
-    wtp_threshold=50000
+# Run analysis from configuration
+results = run_analysis_pipeline(
+    config_path="config/analysis_config.yaml",
+    analysis_type="cea"
 )
 ```
 
 ### Analysis Types
 
-The toolkit supports multiple analysis types organized in the `analysis/` directory:
+The toolkit provides implementations for:
 
-- `analysis/cea/` - Cost-effectiveness analysis
-- `analysis/dcea/` - Distributional CEA with equity considerations  
-- `analysis/voi/` - Value of information analysis
-- `analysis/bia/` - Budget impact analysis
-- `analysis/mcda/` - Multi-criteria decision analysis
-- `analysis/psa/` - Probabilistic sensitivity analysis
-- `analysis/dsa/` - Deterministic sensitivity analysis
-- `analysis/nma/` - Network meta-analysis integration
-- And more specialized analyses...
-
-### Example Notebooks
-
-Jupyter notebooks demonstrating each analysis type are available in the respective analysis directories.
+- **CEA**: Cost-effectiveness analysis with ICERs and NMB calculations
+- **DCEA**: Distributional CEA incorporating equity considerations
+- **VOI**: Value of information analysis (EVPI, EVPPI, EVSI)
+- **BIA**: Budget impact analysis with multi-year projections
+- **MCDA**: Multi-criteria decision analysis
+- **PSA**: Probabilistic sensitivity analysis
+- **DSA**: Deterministic sensitivity analysis (one-way and multi-way)
+- **VBP**: Value-based pricing calculations
+- **Headroom**: Headroom and pricing threshold analysis
+- **Subgroup**: Subgroup analysis by demographics/clinical characteristics
+- **Scenario**: Scenario analysis for different assumptions
+- **Capacity**: Capacity constraints and implementation modeling
+- **Policy**: Policy realism and implementation feasibility assessment
 
 ## Project Structure
 
 ```
-trd-cea-toolkit/
+trd-cea-analysis/
 ├── analysis/                 # Jupyter notebooks by analysis type
 │   ├── cea/                  # Cost-effectiveness analysis examples
 │   ├── dcea/                 # Distributional CEA examples  
 │   ├── voi/                  # Value of information examples
+│   ├── bia/                  # Budget impact analysis examples
 │   └── ...                   # Other analysis types
-├── scripts/                  # Core Python functionality
-│   ├── core/                 # Fundamental utilities
-│   ├── models/               # Analysis engines and models
-│   ├── analysis/             # Analysis execution scripts  
-│   └── plotting/             # Visualization utilities
+├── src/trd_cea/              # Python package source
+│   ├── core/                 # Core utilities and configuration
+│   ├── models/               # Analysis engine implementations
+│   ├── analysis/             # Analysis execution functions
+│   ├── plotting/             # Visualization and plotting utilities
+│   └── utils/                # General utility functions
 ├── config/                   # Configuration files
-├── data/                     # Data schemas and structures
+├── data/                     # Data schemas and sample data structures
 ├── docs/                     # Documentation
 ├── tests/                    # Test suite
-├── results/                  # Example results
-├── requirements.txt          # Dependencies
-├── pyproject.toml           # Package configuration
-└── README.md                # This file
+├── environment.yml           # Conda environment specification
+├── requirements.txt          # Python dependencies
+├── pyproject.toml            # Python package metadata
+├── README.md                 # This file
+└── LICENSE                   # License information
 ```
+
+## Configuration
+
+All analyses are configurable through YAML files in the `config/` directory. This separates configuration from code, allowing for reproducible analyses with different parameter sets.
 
 ## Contributing
 
