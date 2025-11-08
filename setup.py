@@ -17,7 +17,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="trd-cea-toolkit",
-    version="0.1.0",
+    version="0.1.1",
     author="TRD CEA Development Team",
     author_email="trd-cea-dev@example.com",
     description="Health Economic Evaluation Toolkit for Treatment-Resistant Depression Interventions",

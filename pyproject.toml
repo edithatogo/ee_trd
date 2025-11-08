@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "trd-cea-toolkit"
-version = "0.1.0"
+version = "0.1.1"
 description = "Open-source toolkit for health economic evaluation of psychedelic therapies vs ECT for treatment-resistant depression"
 readme = "README.md"
 license = {file = "LICENSE"}
