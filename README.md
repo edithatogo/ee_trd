@@ -14,13 +14,25 @@ The TRD CEA Toolkit provides:
 - **Sensitivity Analysis**: One-way, multi-way, and probabilistic sensitivity analysis
 - **Implementation Modeling**: Capacity constraints and implementation costs
 - **Equity Analysis**: Distributional cost-effectiveness with population subgroups
+- **Publication-Ready Visual Outputs**: The toolkit generates publication-ready visualizations including cost-effectiveness planes, CEAC curves, tornado diagrams, and budget impact projections that meet Wiley's publication standards.
+
+## Visual Outputs
+
+The toolkit generates several types of publication-ready visualizations:
+
+- **Cost-Effectiveness Planes**: Scatter plots showing incremental costs vs incremental effects of different treatments
+- **Cost-Effectiveness Acceptability Curves (CEAC)**: Showing probability of cost-effectiveness across willingness-to-pay thresholds  
+- **Tornado Diagrams**: For one-way sensitivity analysis
+- **Population Health Impact Curves**: Showing health benefits across populations
+- **Value of Information Charts**: EVPI and EVPPI visualizations
+- **Budget Impact Projections**: Over multiple years
 
 ## Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/trd-cea-toolkit.git
-cd trd-cea-toolkit
+git clone https://github.com/edithatogo/ee_trd.git
+cd ee_trd
 
 # Create conda environment (recommended)
 conda env create -f environment.yml
