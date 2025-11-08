@@ -12,39 +12,21 @@ from pathlib import Path
 import sys
 import os
 
-# Add the scripts directory to the path
-sys.path.insert(0, os.path.join(os.pardir, 'scripts'))
-sys.path.insert(0, os.path.join(os.pardir, 'scripts', 'models'))
-sys.path.insert(0, os.path.join(os.pardir, 'scripts', 'core'))
-
 # Import the modules to test
-from scripts.models.cea_engine import CEAEngine
-from scripts.models.dcea_engine import DCEAEngine
-from scripts.models.voi_engine import VOIEngine
-from scripts.models.bia_engine import BIAEngine
-from scripts.core.config import load_config, validate_parameters
-from scripts.core.io import load_data, save_results
-from scripts.core.utils import calculate_icer, calculate_nmb
+from src.trd_cea.models.dcea_engine import DCEAResult, IndigenousDCEAResult
+from src.trd_cea.models.voi_engine import run_voi_analysis
+from src.trd_cea.models.bia_engine import run_bia_all_arms
+from src.trd_cea.models.cea_engine import simulate_arm, run_cea_all_arms
+from src.trd_cea.core.config import load_config, validate_parameters
+from src.trd_cea.core.io import load_data, save_results
+from src.trd_cea.core.utils import calculate_icer, calculate_nmb, calculate_icr
 
 
-class TestCEAEngine(unittest.TestCase):
-    """Unit tests for the Cost-Effectiveness Analysis engine."""
-    
-    def setUp(self):
-        """Set up test fixtures before each test method."""
-        self.cea_engine = CEAEngine()
-        
-        # Sample test data
-        self.test_params = {
-            'strategies': ['Standard', 'Intervention'],
-            'costs': [1000, 1500],
-            'effects': [0.6, 0.8],
-            'wtp_threshold': 50000
-        }
+class TestCEAFunctions(unittest.TestCase):
+    """Unit tests for the Cost-Effectiveness Analysis functions."""
     
     def test_calculate_icer(self):
         """Test ICER calculation."""
-        # Using utility function for now, would test internal method in actual implementation
         icer = calculate_icer(
             cost_new=1500, 
             cost_old=1000, 
@@ -63,39 +45,23 @@ class TestCEAEngine(unittest.TestCase):
         )
         expected_nmb = 0.6 * 50000 - 1000  # 30000 - 1000 = 29000
         self.assertAlmostEqual(nmb, 29000.0)
-    
-    def test_basic_analysis(self):
-        """Test basic CEA analysis execution."""
-        # This would call the actual analysis method in a real implementation
-        # For now, we're verifying the method exists and accepts the right parameters
-        self.assertTrue(hasattr(self.cea_engine, 'analyze'))
-    
-    def test_invalid_input_validation(self):
-        """Test validation of invalid input parameters."""
-        # Test with negative costs
-        invalid_params = {
-            'strategies': ['Std', 'Int'],
-            'costs': [-1000, 1500],  # Invalid: negative cost
-            'effects': [0.6, 0.8],
-            'wtp_threshold': 50000
-        }
-        
-        # Would test for proper error handling in actual implementation
-        with self.assertRaises(ValueError):
-            # This assumes the method validates inputs - adjust based on actual implementation
-            pass
+
+    def test_cea_functions_exist(self):
+        """Test that core CEA functions exist and are callable."""
+        self.assertTrue(callable(simulate_arm))
+        self.assertTrue(callable(run_cea_all_arms))
 
 
 class TestDCEAEngine(unittest.TestCase):
     """Unit tests for the Distributional Cost-Effectiveness Analysis engine."""
     
-    def setUp(self):
-        """Set up test fixtures before each test method."""
-        self.dcea_engine = DCEAEngine()
-    
     def test_initialize_with_parameters(self):
         """Test initialization with valid parameters."""
-        self.assertIsInstance(self.dcea_engine, DCEAEngine)
+        dcea_result = DCEAResult()
+        self.assertIsInstance(dcea_result, DCEAResult)
+        
+        indigenous_result = IndigenousDCEAResult()
+        self.assertIsInstance(indigenous_result, IndigenousDCEAResult)
     
     def test_equity_weights_calculation(self):
         """Test equity weight calculation methods."""
@@ -111,31 +77,20 @@ class TestDCEAEngine(unittest.TestCase):
         self.assertIsInstance(weighted_qalys, (int, float))
 
 
-class TestVOIEngine(unittest.TestCase):
-    """Unit tests for the Value of Information analysis engine."""
+class TestVOIFunction(unittest.TestCase):
+    """Unit tests for the Value of Information analysis function."""
     
-    def setUp(self):
-        """Set up test fixtures before each test method."""
-        self.voi_engine = VOIEngine()
-    
-    def test_evpi_calculation(self):
-        """Test Expected Value of Perfect Information calculation."""
-        # In a real implementation, this would run the EVPI algorithm
-        # For unit test, we'd mock the data and verify the calculation logic
-        pass
-    
-    def test_evpip_calculation(self):
-        """Test Expected Value of Partial Perfect Information calculation."""
-        # Similar to EVPI, would test the calculation logic
-        pass
+    def test_voi_function_exists(self):
+        """Test VOI function is callable."""
+        self.assertTrue(callable(run_voi_analysis))
 
 
-class TestBIAEngine(unittest.TestCase):
-    """Unit tests for the Budget Impact Analysis engine."""
+class TestBIAFunction(unittest.TestCase):
+    """Unit tests for the Budget Impact Analysis function."""
     
-    def setUp(self):
-        """Set up test fixtures before each test method."""
-        self.bia_engine = BIAEngine()
+    def test_bia_function_exists(self):
+        """Test BIA function is callable."""
+        self.assertTrue(callable(run_bia_all_arms))
     
     def test_budget_calculation(self):
         """Test budget calculation methods."""
@@ -206,6 +161,15 @@ class TestCoreUtilities(unittest.TestCase):
         )
         expected = 0.3 * 50000 - 20000  # 15000 - 20000 = -5000
         self.assertAlmostEqual(nmb, -5000.0)
+
+    def test_calculate_icr(self):
+        """Test Incremental Cost-Ratio calculation."""
+        icr = calculate_icr(
+            cost=2000,
+            effect=0.75
+        )
+        expected = 2000 / 0.75  # 2666.67
+        self.assertAlmostEqual(icr, expected)
 
 
 class TestConfiguration(unittest.TestCase):

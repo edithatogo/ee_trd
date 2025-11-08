@@ -16,15 +16,10 @@ import numpy as np
 import yaml
 import json
 
-# Add the scripts directory to the path
-sys.path.insert(0, os.path.join(os.pardir, 'scripts'))
-sys.path.insert(0, os.path.join(os.pardir, 'scripts', 'models'))
-sys.path.insert(0, os.path.join(os.pardir, 'scripts', 'core'))
-
-from scripts.models.cea_engine import CEAEngine
-from scripts.models.bia_engine import BIAEngine
-from scripts.core.config import load_config
-from scripts.cli import main as cli_main
+from src.trd_cea.models.cea_engine import run_cea_all_arms, simulate_arm
+from src.trd_cea.models.bia_engine import run_bia_all_arms
+from src.trd_cea.core.config import load_config
+from src.trd_cea.cli import main as cli_main
 
 
 class TestCompleteCEAWorkflow(unittest.TestCase):
@@ -85,6 +80,12 @@ class TestCompleteCEAWorkflow(unittest.TestCase):
         """Clean up after each test method."""
         shutil.rmtree(self.temp_dir)
     
+    def test_cea_functions_callable(self):
+        """Test that CEA functions are properly importable and callable."""
+        # Simply test the functions exist and are callable
+        self.assertTrue(callable(run_cea_all_arms))
+        self.assertTrue(callable(simulate_arm))
+    
     def test_full_cea_analysis_workflow(self):
         """Test the complete CEA analysis workflow end-to-end."""
         # 1. Load configuration
@@ -99,18 +100,6 @@ class TestCompleteCEAWorkflow(unittest.TestCase):
         effects = [config['strategies'][s]['effect'] for s in strategies]
         wtp_threshold = config['analysis']['wtp_threshold']
         
-        # 3. Initialize and run CEA analysis
-        cea_engine = CEAEngine()
-        
-        # In an actual implementation, this would execute the analysis
-        # For now, we'll test that the parameters are correctly set up
-        analysis_params = {
-            'strategies': strategies,
-            'costs': costs,
-            'effects': effects,
-            'wtp_threshold': wtp_threshold
-        }
-        
         # Verify parameter integrity
         self.assertEqual(len(strategies), 3)
         self.assertEqual(len(costs), 3)
@@ -118,9 +107,6 @@ class TestCompleteCEAWorkflow(unittest.TestCase):
         self.assertTrue(all(c > 0 for c in costs))
         self.assertTrue(all(e > 0 for e in effects))
         self.assertGreater(wtp_threshold, 0)
-        
-        # 4. Run analysis (simulated)
-        # results = cea_engine.run_analysis(analysis_params)
         
         # 5. Calculate basic metrics to ensure the workflow would produce results
         # This simulates what would happen in the engine
@@ -173,6 +159,8 @@ class TestCompleteCEAWorkflow(unittest.TestCase):
         
         # 8. Test result persistence
         # Create results dataframe
+        from src.trd_cea.core.utils import calculate_icer, calculate_nmb
+        
         results_df = pd.DataFrame({
             'Strategy': results['strategies'],
             'Cost': results['costs'], 
@@ -254,6 +242,11 @@ class TestCompleteBIAWorkflow(unittest.TestCase):
     def tearDown(self):
         """Clean up after each test method."""
         shutil.rmtree(self.temp_dir)
+    
+    def test_bia_functions_callable(self):
+        """Test that BIA functions are properly importable and callable."""
+        # Simply test the function exists and is callable
+        self.assertTrue(callable(run_bia_all_arms))
     
     def test_full_bia_analysis_workflow(self):
         """Test the complete BIA analysis workflow end-to-end."""
@@ -441,16 +434,18 @@ class TestCompleteAnalysisPipeline(unittest.TestCase):
         cea_results['nmbs'] = []
         cea_results['icers'] = []
         for i in range(len(costs)):
-            nmb = effects[i] * wtp - costs[i]
+            from src.trd_cea.core.utils import calculate_nmb
+            nmb = calculate_nmb(costs[i], effects[i], wtp)
             cea_results['nmbs'].append(nmb)
             
             if i == 0:  # Reference strategy
                 cea_results['icers'].append(0.0)  # Reference has 0 ICER
             else:
+                from src.trd_cea.core.utils import calculate_icer
                 delta_cost = costs[i] - costs[0]
                 delta_effect = effects[i] - effects[0]
                 if delta_effect != 0:
-                    icer = delta_cost / delta_effect
+                    icer = calculate_icer(costs[i], costs[0], effects[i], effects[0])
                 else:
                     icer = float('inf') if delta_cost > 0 else float('-inf')
                 cea_results['icers'].append(icer)

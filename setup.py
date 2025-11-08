@@ -17,23 +17,23 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="trd-cea-toolkit",
-    version="0.4.0",
+    version="0.1.0",
     author="TRD CEA Development Team",
     author_email="trd-cea-dev@example.com",
     description="Health Economic Evaluation Toolkit for Treatment-Resistant Depression Interventions",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/trd-cea/trd-cea-toolkit",
+    url="https://github.com/edithatogo/ee_trd",
     project_urls={
-        "Bug Reports": "https://github.com/trd-cea/trd-cea-toolkit/issues",
-        "Source": "https://github.com/trd-cea/trd-cea-toolkit",
+        "Bug Reports": "https://github.com/edithatogo/ee_trd/issues",
+        "Source": "https://github.com/edithatogo/ee_trd",
         "Documentation": "https://trd-cea-toolkit.readthedocs.io/",
     },
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 3 - Alpha",
         "Intended Audience :: Science/Research",
         "Intended Audience :: Healthcare Industry", 
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
@@ -66,6 +66,6 @@ setup(
             "sphinx-rtd-theme>=1.0",
         ],
     },
-    keywords=["health-economics", "cost-effectiveness", "psycadelics", "trd", "cea"],
-    license="MIT",
+    keywords=["health-economics", "cost-effectiveness", "psychedelic-therapies", "trd", "cea"],
+    license="Apache 2.0",
 )

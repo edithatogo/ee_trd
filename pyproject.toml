@@ -4,18 +4,19 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "trd-cea-toolkit"
-version = "0.4.0"
+version = "0.1.0"
 description = "Open-source toolkit for health economic evaluation of psychedelic therapies vs ECT for treatment-resistant depression"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
     {name = "TRD CEA Development Team", email = "trd-cea-dev@example.com"},
+    {name = "Dylan A Mordaunt", email = "d.a.mordaunt@example.com"}
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Healthcare Industry", 
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -64,10 +65,10 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/trd-cea/trd-cea-toolkit"
-Repository = "https://github.com/trd-cea/trd-cea-toolkit"
+Homepage = "https://github.com/edithatogo/ee_trd"
+Repository = "https://github.com/edithatogo/ee_trd"
 Documentation = "https://trd-cea-toolkit.readthedocs.io/"
-Changelog = "https://github.com/trd-cea/trd-cea-toolkit/blob/main/CHANGELOG.md"
+Changelog = "https://github.com/edithatogo/ee_trd/blob/main/CHANGELOG.md"
 
 [project.scripts]
 trd-cea-analyze = "trd_cea.cli:main"

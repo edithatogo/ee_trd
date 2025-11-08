@@ -152,7 +152,7 @@ trd-cea-toolkit/
 ├── pyproject.toml            # Modern Python packaging
 ├── requirements.txt          # Python dependencies
 ├── README.md                 # Updated for data science toolkit
-└── LICENSE                   # MIT license
+└── LICENSE                   # Apache 2.0 license
 ```
 
 ## Usage Instructions

@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: Mordaunt
+  given-names: Dylan A
+  orcid: https://orcid.org/YOUR-ORCID-ID  # Replace with actual ORCID if available
+title: "Health Economic Evaluation: Psychedelic Therapies vs ECT for Treatment-Resistant Depression"
+version: 4.0.0
+doi: 10.5281/zenodo.YOUR-ZENODO-DOI  # Replace with actual DOI if available
+date-released: 2025-11-07
+url: "https://github.com/edithatogo/ee_trd"
+license: Apache-2.0
+keywords:
+- health economics
+- cost-effectiveness analysis
+- treatment-resistant depression
+- psychedelic therapies
+- electroconvulsive therapy
+- ketamine
+- psilocybin
+- esketamine
+- repetitive transcranial magnetic stimulation
+- distributional cost-effectiveness analysis
+- value of information
+- value-based pricing
+- budget impact analysis
+- sensitivity analysis

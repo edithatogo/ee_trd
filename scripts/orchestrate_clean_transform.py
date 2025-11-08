@@ -217,7 +217,7 @@ authors = [
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research", 
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache 2.0 License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
@@ -371,13 +371,14 @@ We welcome contributions! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
 
 ## Citation
 
 If you use this toolkit in your research, please consider citing:
 
-[To be updated with actual citation when published]
+Dylan A Mordaunt (2025). TRD CEA Toolkit: Health Economic Evaluation Tools. 
+Available at https://github.com/edithatogo/ee_trd
 """
         
         readme_file = self.root_dir / "README.md"
@@ -561,9 +562,9 @@ Pull requests are the best way to propose changes to the codebase. We actively w
 5. Make sure your code lints
 6. Issue that pull request!
 
-## Any contributions you make will be under the MIT Software License
+## Any contributions you make will be under the Apache 2.0 Software License
 
-In short, when you submit code changes, your submissions are understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers if that's a concern.
+In short, when you submit code changes, your submissions are understood to be under the same [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0) that covers the project. Feel free to contact the maintainers if that's a concern.
 
 ## Report bugs using GitHub's [issues](https://github.com/octocat/Spoon-Knife/issues)
 
@@ -589,7 +590,7 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under its MIT License.
+By contributing, you agree that your contributions will be licensed under its Apache 2.0 License.
 """
         
         contrib_file = self.root_dir / "CONTRIBUTING.md"

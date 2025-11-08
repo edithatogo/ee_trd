@@ -9,11 +9,6 @@ import os
 import pandas as pd
 import numpy as np
 
-# Add the scripts directory to the path
-sys.path.insert(0, os.path.join(os.pardir, 'scripts'))
-sys.path.insert(0, os.path.join(os.pardir, 'scripts', 'core'))
-sys.path.insert(0, os.path.join(os.pardir, 'scripts', 'models'))
-
 
 class TestCoreModules(unittest.TestCase):
     """Test that core modules can be imported and basic functionality works."""
@@ -21,17 +16,17 @@ class TestCoreModules(unittest.TestCase):
     def test_core_imports(self):
         """Test that core modules can be imported."""
         try:
-            import scripts.core.config
-            import scripts.core.io
-            import scripts.core.deltas
-            import scripts.core.nmb
+            from src.trd_cea.core import config
+            from src.trd_cea.core import io
+            from src.trd_cea.core import deltas
+            from src.trd_cea.core import nmb
             self.assertTrue(True)
         except ImportError as e:
             self.fail(f"Failed to import core modules: {e}")
     
     def test_config_module(self):
         """Test basic config functionality."""
-        from scripts.core.config import load_config
+        from src.trd_cea.core.config import load_config
         
         # Since we don't have actual config files in the expected locations,
         # we'll just test that the function exists and has the expected signature
@@ -39,7 +34,7 @@ class TestCoreModules(unittest.TestCase):
     
     def test_io_module(self):
         """Test basic I/O functionality."""
-        from scripts.core.io import load_data, save_results
+        from src.trd_cea.core.io import load_data, save_results
         
         # Test that functions exist
         self.assertTrue(callable(load_data))
@@ -47,14 +42,14 @@ class TestCoreModules(unittest.TestCase):
     
     def test_deltas_module(self):
         """Test basic deltas functionality."""
-        from scripts.core.deltas import compute_deltas
+        from src.trd_cea.core.deltas import compute_deltas
         
         # Test that function exists
         self.assertTrue(callable(compute_deltas))
     
     def test_nmb_module(self):
         """Test basic NMB functionality."""
-        from scripts.core.nmb import calculate_nmb
+        from src.trd_cea.core.nmb import calculate_nmb
         
         # Test basic calculation
         cost = 1000
@@ -72,24 +67,35 @@ class TestAnalysisEngines(unittest.TestCase):
     def test_cea_engine_import(self):
         """Test CEA engine import."""
         try:
-            # Since the original engines might have dependencies on 'analysis' module,
-            # we'll focus on testing the basic structure
-            import scripts.models.cea_engine
+            # Import the CEA engine
+            from src.trd_cea.models.cea_engine import CEAEngine
             self.assertTrue(True)
         except ImportError as e:
-            print(f"Note: CEA engine not available in current structure: {e}")
-            # This is expected in the simplified structure
-            pass
+            self.fail(f"Failed to import CEA engine: {e}")
     
     def test_bia_engine_import(self):
         """Test BIA engine import."""
         try:
-            import scripts.models.bia_engine
+            from src.trd_cea.models.bia_engine import BIAEngine
             self.assertTrue(True)
         except ImportError as e:
-            print(f"Note: BIA engine not available in current structure: {e}")
-            # This is expected in the simplified structure
-            pass
+            self.fail(f"Failed to import BIA engine: {e}")
+    
+    def test_dcea_engine_import(self):
+        """Test DCEA engine import."""
+        try:
+            from src.trd_cea.models.dcea_engine import DCEAEngine
+            self.assertTrue(True)
+        except ImportError as e:
+            self.fail(f"Failed to import DCEA engine: {e}")
+    
+    def test_voi_engine_import(self):
+        """Test VOI engine import."""
+        try:
+            from src.trd_cea.models.voi_engine import VOIEngine
+            self.assertTrue(True)
+        except ImportError as e:
+            self.fail(f"Failed to import VOI engine: {e}")
 
 
 class TestUtilities(unittest.TestCase):
@@ -97,7 +103,7 @@ class TestUtilities(unittest.TestCase):
     
     def test_calculate_icer(self):
         """Test ICER calculation function."""
-        from scripts.core.utils import calculate_icer
+        from src.trd_cea.core.utils import calculate_icer
         
         # Test with known values
         icer = calculate_icer(1500, 1000, 0.8, 0.6)
@@ -106,7 +112,7 @@ class TestUtilities(unittest.TestCase):
     
     def test_calculate_nmb(self):
         """Test NMB calculation function."""
-        from scripts.core.utils import calculate_nmb
+        from src.trd_cea.core.utils import calculate_nmb
         
         # Test with known values
         nmb = calculate_nmb(1000, 0.6, 50000)

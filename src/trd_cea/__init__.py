@@ -8,7 +8,7 @@ psychedelic therapies against electroconvulsive therapy (ECT) for treatment-resi
 __version__ = "0.4.0"
 __author__ = "TRD CEA Development Team"
 __email__ = "trd-cea-dev@example.com"
-__license__ = "MIT"
+__license__ = "Apache 2.0"
 __maintainer__ = "TRD CEA Development Team"
 __status__ = "Development"
 __copyright__ = "2025, NSW Health Department"

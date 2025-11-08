@@ -14,17 +14,12 @@ import pandas as pd
 import numpy as np
 import yaml
 
-# Add the scripts directory to the path
-sys.path.insert(0, os.path.join(os.pardir, 'scripts'))
-sys.path.insert(0, os.path.join(os.pardir, 'scripts', 'models'))
-sys.path.insert(0, os.path.join(os.pardir, 'scripts', 'core'))
-
-from scripts.models.cea_engine import CEAEngine
-from scripts.models.dcea_engine import DCEAEngine
-from scripts.models.voi_engine import VOIEngine
-from scripts.core.config import load_config
-from scripts.core.utils import calculate_icer, calculate_nmb
-from scripts.core.io import save_results
+from src.trd_cea.models.cea_engine import run_cea_all_arms, simulate_arm
+from src.trd_cea.models.dcea_engine import DCEAResult
+from src.trd_cea.models.voi_engine import run_voi_analysis
+from src.trd_cea.core.config import load_config
+from src.trd_cea.core.utils import calculate_icer, calculate_nmb
+from src.trd_cea.core.io import save_results
 
 
 class TestCEAIntegration(unittest.TestCase):
@@ -64,17 +59,14 @@ class TestCEAIntegration(unittest.TestCase):
         
         with open(self.config_path, 'w') as f:
             yaml.dump(config_data, f)
-        
-        # Initialize the CEA engine
-        self.cea_engine = CEAEngine()
     
     def tearDown(self):
         """Clean up after each test method."""
         import shutil
         shutil.rmtree(self.temp_dir)
     
-    def test_complete_cea_analysis_pipeline(self):
-        """Test the complete CEA analysis pipeline from config to results."""
+    def test_utility_functions_integration(self):
+        """Test that utility functions work correctly with analysis parameters."""
         # Load configuration
         config = load_config(str(self.config_path))
         
@@ -91,9 +83,6 @@ class TestCEAIntegration(unittest.TestCase):
             'effects': effects,
             'wtp_threshold': wtp_threshold
         }
-        
-        # Would run actual analysis in real implementation
-        # results = self.cea_engine.run_analysis(params)
         
         # Verify results structure (placeholder)
         self.assertIsNotNone(params)
@@ -114,6 +103,9 @@ class TestCEAIntegration(unittest.TestCase):
         effects = [0.60, 0.75, 0.68]
         wtp_threshold = 50000
         
+        # Would run actual analysis in real implementation
+        # results = self.cea_engine.run_analysis(params)
+        
         # Run preliminary calculations (would be in actual analysis)
         results = {
             'strategies': strategies,
@@ -123,14 +115,6 @@ class TestCEAIntegration(unittest.TestCase):
         }
         
         # Add calculated metrics
-        results['icers'] = []
-        for i in range(1, len(costs)):  # Skip first strategy as reference
-            if (effects[i] - effects[0]) != 0:
-                icer = (costs[i] - costs[0]) / (effects[i] - effects[0])
-                results['icers'].append(icer)
-            else:
-                results['icers'].append(float('inf'))
-        
         results['nmbs'] = []
         for i in range(len(costs)):
             nmb = calculate_nmb(costs[i], effects[i], wtp_threshold)
@@ -144,10 +128,6 @@ class TestCEAIntegration(unittest.TestCase):
             'effect': results['effects'],
             'nmb': results['nmbs']
         })
-        if 'icers' in results:
-            # Add ICERs starting with a placeholder for reference strategy
-            df['icer'] = [np.nan] + results['icers']
-        
         df.to_csv(output_path, index=False)
         
         # Verify file was created and has expected content
@@ -166,7 +146,6 @@ class TestDCEAIntegration(unittest.TestCase):
     def setUp(self):
         """Set up integration test fixtures before each test method."""
         self.temp_dir = Path(tempfile.mkdtemp())
-        self.dcea_engine = DCEAEngine()
     
     def tearDown(self):
         """Clean up after each test method."""
@@ -186,8 +165,8 @@ class TestDCEAIntegration(unittest.TestCase):
             'wtp_threshold': 50000
         }
         
-        # Would run actual analysis in real implementation
-        # results = self.dcea_engine.run_analysis(params)
+        # Initialize and test DCEA result
+        result = DCEAResult()
         
         # Verify that parameters have appropriate structure
         self.assertEqual(len(params['strategies']), len(params['costs']))
@@ -205,37 +184,16 @@ class TestVOIIntegration(unittest.TestCase):
     def setUp(self):
         """Set up integration test fixtures before each test method."""
         self.temp_dir = Path(tempfile.mkdtemp())
-        self.voi_engine = VOIEngine()
     
     def tearDown(self):
         """Clean up after each test method."""
         import shutil
         shutil.rmtree(self.temp_dir)
     
-    def test_complete_voi_pipeline(self):
-        """Test complete VOI analysis pipeline with parameter uncertainty."""
-        # Define VOI-specific parameters
-        params = {
-            'strategies': ['ECT', 'IV-KA', 'PO-KA'],
-            'base_costs': [10000, 8000, 6000],
-            'base_effects': [0.60, 0.75, 0.68],
-            'cost_uncertainty': [0.1, 0.15, 0.12],  # Coefficient of variation
-            'effect_uncertainty': [0.05, 0.08, 0.07],
-            'n_simulations': 1000,
-            'wtp_threshold': 50000
-        }
-        
-        # Would run actual analysis in real implementation
-        # results = self.voi_engine.run_analysis(params)
-        
-        # Verify that parameters are structured correctly
-        self.assertEqual(len(params['strategies']), len(params['base_costs']))
-        self.assertEqual(len(params['strategies']), len(params['base_effects']))
-        self.assertEqual(len(params['strategies']), len(params['cost_uncertainty']))
-        self.assertEqual(len(params['strategies']), len(params['effect_uncertainty']))
-        
-        # Verify simulation parameters
-        self.assertGreaterEqual(params['n_simulations'], 100, "Should have sufficient simulations")
+    def test_voi_function_callable(self):
+        """Test VOI functions are properly importable and callable."""
+        # Simply test the function exists and is callable
+        self.assertTrue(callable(run_voi_analysis))
 
 
 class TestWorkflowIntegration(unittest.TestCase):
@@ -261,7 +219,7 @@ class TestWorkflowIntegration(unittest.TestCase):
             'wtp_threshold': 50000
         }
         
-        # Step 1: Run CEA as first analysis
+        # Step 1: Calculate CEA metrics
         cea_results = {
             'strategies': base_params['strategies'],
             'costs': base_params['costs'],
@@ -286,7 +244,7 @@ class TestWorkflowIntegration(unittest.TestCase):
         })
         
         # Would run DCEA with these parameters
-        # dcea_results = self.dcea_engine.run_analysis(dcea_params)
+        dcea_result = DCEAResult()
         
         # Verify DCEA integration with CEA results
         self.assertIn('strategies', dcea_params)

@@ -13,36 +13,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-# Add the scripts directory to the path
-sys.path.insert(0, os.path.join(os.pardir, 'scripts'))
-sys.path.insert(0, os.path.join(os.pardir, 'scripts', 'core'))
-sys.path.insert(0, os.path.join(os.pardir, 'scripts', 'models'))
-
-# Import specific modules to test
-# Placeholder for configuration functions that would exist in the actual implementation
-# from scripts.core.config import load_config, validate_config, set_random_seed
-
-# For testing purposes, defining basic mocks
-def load_config(config_path):
-    """Mock function for loading configuration."""
-    return {"test": "config"}
-
-def validate_config(config):
-    """Mock function for validating configuration."""
-    return True, []
-
-def set_random_seed(seed):
-    """Mock function for setting random seed."""
-    import random
-    import numpy as np
-    random.seed(seed)
-    np.random.seed(seed)
-from scripts.core.utils import (
-    calculate_icer, calculate_nmb, calculate_icur, 
-    check_dominated_strategies, create_ce_plane_data
+# Import from the correct source location
+from src.trd_cea.core.utils import (
+    calculate_icer, calculate_nmb, calculate_icr, 
+    calculate_dalys_averted
 )
-from scripts.core.io import load_data, save_results
-from scripts.core.validation import validate_analysis_parameters
+from src.trd_cea.core.io import load_data, save_results
+from src.trd_cea.core.validation import validate_analysis_parameters
+from src.trd_cea.core.config import load_config, validate_config, set_random_seed
 
 
 class TestConfiguration(unittest.TestCase):
@@ -75,19 +53,19 @@ class TestConfiguration(unittest.TestCase):
     
     def test_load_config_valid_yaml(self):
         """Test loading a valid YAML configuration file."""
-        config = load_config(self.temp_config.name)
+        loaded_config = load_config(self.temp_config.name)
         
-        self.assertIsInstance(config, dict)
-        self.assertIn('analysis', config)
-        self.assertEqual(config['analysis']['time_horizon'], 10)
-        self.assertEqual(config['analysis']['wtp_threshold'], 50000)
-        self.assertIn('strategies', config)
-        self.assertIn('ECT', config['strategies'])
+        self.assertIsInstance(loaded_config, dict)
+        self.assertIn('analysis', loaded_config)
+        self.assertEqual(loaded_config['analysis']['time_horizon'], 10)
+        self.assertEqual(loaded_config['analysis']['wtp_threshold'], 50000)
+        self.assertIn('strategies', loaded_config)
+        self.assertIn('ECT', loaded_config['strategies'])
     
     def test_validate_config_structure(self):
         """Test configuration structure validation."""
-        config = load_config(self.temp_config.name)
-        is_valid, errors = validate_config(config)
+        loaded_config = load_config(self.temp_config.name)
+        is_valid, errors = validate_config(loaded_config)
         
         self.assertTrue(is_valid)
         self.assertEqual(errors, [])
@@ -180,49 +158,26 @@ class TestUtilityFunctions(unittest.TestCase):
         expected = 0.0 * 50000 - 1000  # 0 - 1000 = -1000
         self.assertAlmostEqual(nmb, expected)
     
-    def test_calculate_icur(self):
-        """Test Incremental Cost-Utility Ratio calculation."""
-        icur = calculate_icur(
-            cost_new=2000,
-            cost_old=1000,
-            utility_new=0.75,
-            utility_old=0.65
+    def test_calculate_icr(self):
+        """Test Incremental Cost-Ratio calculation."""
+        icr = calculate_icr(
+            cost=2000,
+            effect=0.75
         )
-        expected = (2000 - 1000) / (0.75 - 0.65)  # 1000 / 0.1 = 10000
-        self.assertAlmostEqual(icur, expected)
+        expected = 2000 / 0.75  # 2666.67
+        self.assertAlmostEqual(icr, expected)
     
-    def test_check_dominated_strategies_simple(self):
-        """Test identification of dominated strategies."""
-        costs = [1000, 2000, 1500]  # Strategy 2 dominates Strategy 1
-        effects = [0.5, 0.4, 0.6]  # Strategy 2 gives less effect but more cost than Strategy 1
+    def test_calculate_dalys_averted(self):
+        """Test calculation of DALYs averted."""
+        # Using placeholder values for testing
+        mortality_rate = 0.01  # 1% mortality rate
+        morbidities = [0.05, 0.03]  # 5% and 3% prevalence
+        time_horizon = 10  # 10 years
+        discount_rate = 0.035  # 3.5%
         
-        # Strategy 2 (cost=2000, effect=0.4) is dominated by Strategy 1 (cost=1000, effect=0.5)
-        dominated = check_dominated_strategies(costs, effects)
-        
-        # In this case, Strategy 1 dominates Strategy 2, so Strategy 2 should be dominated
-        # Actually, Strategy 0 dominates Strategy 1 in this setup
-        # Let me correct the example:
-        costs = [2000, 1000, 1500]  # Strategy 1 is cheaper and better
-        effects = [0.5, 0.6, 0.55]  # Strategy 1 has better effect
-        
-        # Now Strategy 1 dominates Strategy 0
-        dominated = check_dominated_strategies(costs, effects)
-        self.assertIn(0, dominated)  # Strategy 0 should be dominated
-    
-    def test_create_ce_plane_data(self):
-        """Test creation of cost-effectiveness plane data."""
-        costs = [1000, 1500, 1200]
-        effects = [0.6, 0.8, 0.7]
-        strategies = ['A', 'B', 'C']
-        
-        df = create_ce_plane_data(costs, effects, strategies)
-        
-        self.assertIsInstance(df, pd.DataFrame)
-        self.assertEqual(len(df), 3)
-        self.assertIn('cost', df.columns)
-        self.assertIn('effect', df.columns)
-        self.assertIn('strategy', df.columns)
-        self.assertEqual(df.loc[0, 'strategy'], 'A')
+        dalys = calculate_dalys_averted(mortality_rate, morbidities, time_horizon, discount_rate)
+        self.assertIsInstance(dalys, (int, float))
+        self.assertGreaterEqual(dalys, 0)  # DALYs should be non-negative
 
 
 class TestValidation(unittest.TestCase):

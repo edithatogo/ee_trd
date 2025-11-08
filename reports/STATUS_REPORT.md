@@ -86,7 +86,7 @@ The repository is now ready to be published to GitHub as a professional, open-so
 - Clear usage examples
 - Professional structure
 - Clean separation of code and configuration
-- Proper licensing (MIT)
+- Proper licensing (Apache 2.0)
 - Community guidelines (CONTRIBUTING.md, CODE_OF_CONDUCT.md)
 
 ## Next Steps
