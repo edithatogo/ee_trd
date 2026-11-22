@@ -522,7 +522,7 @@ class KnowledgeManagementSystem:
             "---",
             f"title: \"{topic}\"",
             f"date_created: \"{datetime.now().isoformat()}\"",
-            f"tags: [{', '.join([f'\"{tag}\"' for tag in tags])}]",
+            f"tags: [{', '.join(json.dumps(tag) for tag in tags)}]",
             "metadata:",
         ]
         

@@ -12,10 +12,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-import pandas as pd
-import numpy as np
-from dataclasses import dataclass
-from typing import Optional
+from .io import PSAData
 
 
 @dataclass
